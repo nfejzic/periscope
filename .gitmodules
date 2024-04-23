@@ -1,3 +1,6 @@
 [submodule "periscope-rs"]
 	path = periscope-rs
 	url = https://github.com/nfejzic/periscope-rs
+[submodule "selfie"]
+	path = selfie
+	url = https://github.com/cksystemsteaching/selfie
