@@ -1,0 +1,39 @@
+{
+  "simple-increasing-loop-1-35-rotorized.btor2": {
+    "Success": {
+      "props": [
+        {
+          "kind": "Bad",
+          "name": "core-0-bad-exit-code",
+          "node": 49003,
+          "idx": 6
+        }
+      ],
+      "steps": 94,
+      "hyperfine": {
+        "results": [
+          {
+            "command": "timeout --foreground 300s btormc ../selfie/examples/symbolic/simple-increasing-loop-1-35-rotorized.btor2 -kmax 200",
+            "mean": 70.11660493472,
+            "stddev": 0.3369077815945192,
+            "median": 70.11660493472,
+            "user": 67.93836456,
+            "system": 2.17036902,
+            "min": 69.87837515772,
+            "max": 70.35483471172,
+            "times": [
+              70.35483471172,
+              69.87837515772
+            ],
+            "exit_codes": [
+              0,
+              0
+            ]
+          }
+        ]
+      },
+      "wc_raw": 1026119,
+      "wc_btormc_dump": 97144
+    }
+  }
+}
