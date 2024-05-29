@@ -1,0 +1,12 @@
+server/
+
+periscope-py/**/*.png
+periscope-py/**/*.jpg
+
+periscope-rs/.tmp
+periscope-rs/**/*.json
+
+**/debug
+**/*.wit
+**/*.bwit
+**/*.btor2
