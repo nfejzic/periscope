@@ -84,5 +84,11 @@ pub enum Commands {
         /// Target for runing `make` inside of the selfie directory.
         #[arg(short = 'm', long = "make-target", required_if_eq("run_rotor", "true"))]
         make_target: Option<String>,
+
+        /// Number of parallel benchmarks to run. By default benchmarks are run sequentially.
+        /// However, if you have multiple CPU cores, you can spin-up multiple benchmarks in
+        /// parallel. Maximum value is 255.
+        #[arg(short = 'j', long = "jobs", default_value = "1")]
+        jobs: u8,
     },
 }

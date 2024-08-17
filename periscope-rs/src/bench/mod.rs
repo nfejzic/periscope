@@ -1,9 +1,9 @@
 use std::{
     collections::HashMap,
     ffi::OsStr,
-    fs::{DirEntry, File},
-    io::{StdoutLock, Write},
+    fs::File,
     path::{Path, PathBuf},
+    sync::Mutex,
 };
 
 use anyhow::Context;
@@ -72,14 +72,14 @@ pub fn run_benches(
     path: PathBuf,
     bench_config: BenchConfig,
     make_target: Option<String>,
+    jobs: u8,
 ) -> anyhow::Result<()> {
     let dot_periscope = create_dot_periscope();
-    let mut stdout = std::io::stdout().lock();
 
     if bench_config.runs.is_empty() {
-        bench_file_or_dir(path, &dot_periscope, bench_config, &mut stdout)
+        bench_file_or_dir(path, &dot_periscope, bench_config)
     } else {
-        run_benches_with_rotor(path, bench_config, &dot_periscope, make_target)
+        run_benches_with_rotor(path, bench_config, &dot_periscope, make_target, jobs)
     }
 }
 
@@ -87,7 +87,6 @@ fn bench_file_or_dir(
     path: PathBuf,
     dot_periscope: &Path,
     bench_config: BenchConfig,
-    stdout: &mut StdoutLock,
 ) -> anyhow::Result<()> {
     let (mut results, results_path) =
         load_or_create_results(dot_periscope, bench_config.results_path);
@@ -108,7 +107,6 @@ fn bench_file_or_dir(
         let bench_result = self::bench_file(
             &path,
             dot_periscope,
-            stdout,
             bench_config.timeout,
             &bench_config.btormc_flags,
         )?;
@@ -134,9 +132,8 @@ fn run_benches_with_rotor(
     config: BenchConfig,
     dot_periscope: &Path,
     make_target: Option<String>,
+    jobs: u8,
 ) -> anyhow::Result<()> {
-    let mut stdout = std::io::stdout().lock();
-
     for (name, rotor_args) in config.runs {
         println!("\nRunning '{name}':");
 
@@ -167,19 +164,15 @@ fn run_benches_with_rotor(
                 results_dir.display()
             )
         })?;
+
         // create results file
         let results_path = results_dir.join(format!("{}.json", name));
         let (mut results, results_path) = load_or_create_results(dot_periscope, Some(results_path));
 
-        for file in files {
-            let bench_result = bench_file(
-                &file,
-                dot_periscope,
-                &mut stdout,
-                config.timeout,
-                &config.btormc_flags,
-            )
-            .with_context(|| format!("Failed benching file {}", file.display()))?;
+        let run_single_bench = |file: PathBuf| -> anyhow::Result<(String, BenchResult)> {
+            let bench_result =
+                bench_file(&file, dot_periscope, config.timeout, &config.btormc_flags)
+                    .with_context(|| format!("Failed benching file {}", file.display()))?;
 
             let filename = file
                 .file_name()
@@ -187,7 +180,54 @@ fn run_benches_with_rotor(
                 .map(String::from)
                 .expect("Failed to get filename.");
 
-            results.insert(filename, bench_result);
+            // results.insert(filename, bench_result);
+            Ok((filename, bench_result))
+        };
+
+        if jobs > 1 {
+            let files = Mutex::new(files);
+            // let threads = Vec::with_capacity(jobs.into());
+
+            let (tx, rx) = std::sync::mpsc::channel();
+
+            std::thread::scope(|s| {
+                for _ in 0..jobs {
+                    println!("Spawning thread.");
+                    s.spawn(|| loop {
+                        let mut l = files.lock().unwrap();
+                        let f = l.pop();
+                        drop(l);
+
+                        match f {
+                            Some(f) => {
+                                println!("Running bench on '{}'", f.display());
+                                let res = run_single_bench(f);
+
+                                if tx.send(res).is_err() {
+                                    break;
+                                }
+                            }
+                            None => break,
+                        }
+                    });
+                }
+
+                while let Ok(res) = rx.recv() {
+                    match res {
+                        Ok((filename, bench_result)) => {
+                            results.insert(filename, bench_result);
+                        }
+                        Err(err) => return Err(err),
+                    }
+                }
+
+                Ok(())
+            })?;
+        } else {
+            for file in files {
+                let (filename, bench_result) = run_single_bench(file)?;
+                results.insert(filename, bench_result);
+            }
         }
 
         let mut results_file = File::create(&results_path)
@@ -234,7 +274,6 @@ fn load_or_create_results(
 fn bench_file(
     path: impl AsRef<Path>,
     dot_periscope: &Path,
-    stdout: &mut std::io::StdoutLock,
     timeout: Option<u128>,
     btormc_flags: &Option<String>,
 ) -> anyhow::Result<BenchResult> {
@@ -301,8 +340,7 @@ fn bench_file(
     let steps = props_in_steps[0].1;
 
     if props_in_steps.len() == 1 {
-        let _ = writeln!(
-            stdout,
+        println!(
             "{}:\n\t{} characters, {} characters in dump.\n\tFound {} in {} steps.",
             path.file_name()
                 .and_then(OsStr::to_str)
@@ -321,17 +359,4 @@ fn bench_file(
         wc_raw,
         wc_btormc_dump: wc_of_dump,
     })
-}
-
-trait IsBtor2 {
-    fn is_btor2(&self) -> bool;
-}
-
-impl IsBtor2 for DirEntry {
-    fn is_btor2(&self) -> bool {
-        matches!(
-            self.path().extension().and_then(OsStr::to_str),
-            Some("btor2")
-        )
-    }
 }
