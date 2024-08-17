@@ -1,0 +1,132 @@
+name: Make Everything Selfie
+
+on:
+  push:
+    paths-ignore:
+    - '**.md'
+    - '**.txt'
+    - 'docs'
+    - 'AUTHORS'
+    - 'LICENSE'
+  pull_request:
+    paths-ignore:
+    - '**.md'
+    - '**.txt'
+    - 'docs'
+    - 'AUTHORS'
+    - 'LICENSE'
+  schedule:
+    # trigger fridays at 12am
+    - cron: '0 0 * * 5'
+  workflow_dispatch:
+    inputs:
+      oslinux:
+        description: 'Make all on Linux'
+        type: boolean
+        required: true
+        default: true
+      osmacos:
+        description: 'Make all on macOS'
+        type: boolean
+        required: true
+        default: true
+      oswindows:
+        description: 'Make all on Windows'
+        type: boolean
+        required: true
+        default: true
+      rundocker:
+        description: 'Make everything on docker'
+        type: boolean
+        required: true
+        default: true
+
+jobs:
+  make-all-on-linux:
+    name: Make all of selfie on Linux
+    runs-on: ubuntu-latest
+    if: ${{ ((github.event_name != 'workflow_dispatch') || (github.event.inputs.oslinux == 'true')) && (((!github.event.repository.private) || ((github.ref == 'refs/heads/main') && (github.event_name != 'schedule'))) || (github.event_name == 'workflow_dispatch')) }}
+
+    steps:
+    - name: Checkout selfie
+      uses: actions/checkout@v4
+    - name: Make all
+      run: make -j -O all
+    - name: Use Python 3.12.x
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.12.x"
+    - name: Run autograder baseline
+      run: make grade
+
+  make-all-on-macos:
+    name: Make all of selfie on macOS
+    runs-on: macos-latest
+    if: ${{ ((github.event_name != 'workflow_dispatch') || (github.event.inputs.osmacos == 'true')) && ((!github.event.repository.private) || (github.event_name == 'workflow_dispatch')) }}
+
+    steps:
+    - name: Checkout selfie
+      uses: actions/checkout@v4
+    - name: Make all
+      run: make -j all
+    - name: Use Python 3.12.x
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.12.x"
+    - name: Run autograder baseline
+      run: make grade
+
+  make-all-on-windows:
+    name: Make all of selfie on Windows
+    runs-on: windows-latest
+    if: ${{ ((github.event_name != 'workflow_dispatch') || (github.event.inputs.oswindows == 'true')) && ((!github.event.repository.private) || (github.event_name == 'workflow_dispatch')) }}
+
+    steps:
+    - name: Checkout selfie
+      uses: actions/checkout@v4
+    - name: Use gcc from cygwin for LP64 data model (not LLP64 with mingw)
+      run: |
+        choco upgrade cygwin -y --no-progress
+        C:\tools\cygwin\cygwinsetup.exe -q -d -N -R C:\tools\cygwin -l C:\tools\cygwin\packages -P gcc-core,make | Out-Default
+        echo 'C:\tools\cygwin\bin' >> $env:GITHUB_PATH
+    - name: Make all
+      run: make -j -O all
+    # TODO: python3 does not work here
+
+  make-everything-on-docker:
+    name: Make everything of selfie on docker
+    runs-on: ubuntu-latest
+    if: ${{ ((github.event_name != 'workflow_dispatch') || (github.event.inputs.rundocker == 'true')) && (((!github.event.repository.private) || ((github.ref == 'refs/heads/main') && (github.event_name != 'schedule'))) || (github.event_name == 'workflow_dispatch')) }}
+
+    # usage: optional run argument --platform=linux/amd64 or --platform=linux/arm64
+    #
+    # - pull docker images: docker pull -a cksystemsteaching/selfie
+    # - run command:        docker run -v cksystemsteaching/selfie command
+    # - run interactive:    docker run -it cksystemsteaching/selfie
+    # - run on my selfie:   docker run -it -v /myselfie:/opt/myselfie cksystemsteaching/selfie
+
+    steps:
+    - name: Checkout selfie
+      uses: actions/checkout@v4
+    - name: Set up QEMU
+      uses: docker/setup-qemu-action@v3
+      with:
+        platforms: all
+    - name: Set up Docker Buildx
+      id: buildx
+      uses: docker/setup-buildx-action@v3
+    - name: Build docker images
+      run: |
+        # TODO: build single multi-platform image even though arm64 does not support 32-bit tools
+        docker buildx build --platform=linux/arm64 --target=selfieall --load -t cksystemsteaching/selfie:arm64 .
+        docker buildx build --platform=linux/amd64 --target=selfieeverything --load -t cksystemsteaching/selfie:amd64 -t cksystemsteaching/selfie:latest .
+    - name: Make everything
+      run: |
+        # TODO: emulated arm64 "make -j -O all", too slow for now, skipping
+        docker run cksystemsteaching/selfie:amd64 make -j -O everything
+        docker run cksystemsteaching/selfie:latest make pythons
+    - name: Deploy docker image
+      if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && github.repository == 'cksystemsteaching/selfie' }}
+      run: |
+        echo '${{ secrets.DOCKERHUB_PASSWORD }}' | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+        docker push -a cksystemsteaching/selfie

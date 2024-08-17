@@ -1,0 +1,58 @@
+[
+ {
+  "directory": "/Users/nadirfejzic/Developer/periscope/selfie",
+  "arguments": [
+   "cc",
+   "-Wall",
+   "-Wextra",
+   "-O3",
+   "-Duint64_t=unsigned long",
+   "selfie.c",
+   "-o",
+   "selfie"
+  ],
+  "file": "selfie.c"
+ },
+ {
+  "directory": "/Users/nadirfejzic/Developer/periscope/selfie",
+  "arguments": [
+   "cc",
+   "-Wall",
+   "-Wextra",
+   "-O3",
+   "-Duint64_t=unsigned long",
+   "--include",
+   "selfie.h",
+   "tools/rotor.c",
+   "-o",
+   "rotor"
+  ],
+  "file": "tools/rotor.c"
+ },
+ {
+  "directory": "/Users/nadirfejzic/Developer/periscope/selfie",
+  "arguments": [
+   "cc",
+   "-Wall",
+   "-Wextra",
+   "-O3",
+   "-Duint64_t=unsigned long",
+   "--include",
+   "selfie.h",
+   "tools/beator.c",
+   "-o",
+   "beator"
+  ],
+  "file": "tools/beator.c"
+ },
+ {
+  "directory": "/Users/nadirfejzic/Developer/periscope/selfie",
+  "arguments": [
+   "cc",
+   "test.c",
+   "-o",
+   "test"
+  ],
+  "file": "test.c"
+ }
+]
