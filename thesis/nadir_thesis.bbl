@@ -1,0 +1,185 @@
+% $ biblatex auxiliary file $
+% $ biblatex bbl format version 3.3 $
+% Do not modify the above lines!
+%
+% This is an auxiliary file used by the 'biblatex' package.
+% This file may safely be deleted. It will be recreated as
+% required.
+%
+\begingroup
+\makeatletter
+\@ifundefined{ver@biblatex.sty}
+  {\@latex@error
+     {Missing 'biblatex' package}
+     {The bibliography requires the 'biblatex' package.}
+      \aftergroup\endinput}
+  {}
+\endgroup
+
+\datalist[entry]{nty/global//global/global/global}
+  \entry{horowitz1989art}{book}{}{}
+    \name{author}{3}{}{%
+      {{hash=HP}{%
+         family={Horowitz},
+         familyi={H\bibinitperiod},
+         given={Paul},
+         giveni={P\bibinitperiod},
+      }}%
+      {{hash=HW}{%
+         family={Hill},
+         familyi={H\bibinitperiod},
+         given={Winfield},
+         giveni={W\bibinitperiod},
+      }}%
+      {{hash=RI}{%
+         family={Robinson},
+         familyi={R\bibinitperiod},
+         given={Ian},
+         giveni={I\bibinitperiod},
+      }}%
+    }
+    \list{publisher}{1}{%
+      {Cambridge university press Cambridge}%
+    }
+    \strng{namehash}{HPHWRI1}
+    \strng{fullhash}{HPHWRI1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{H}
+    \field{sortinithash}{H}
+    \field{title}{The art of electronics}
+    \field{volume}{2}
+    \field{year}{1989}
+  \endentry
+
+  \entry{gh:rotor}{misc}{}{}
+    \name{author}{1}{}{%
+      {{hash=KC}{%
+         family={Kirsch},
+         familyi={K\bibinitperiod},
+         given={Christoph},
+         giveni={C\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{KC1}
+    \strng{fullhash}{KC1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{K}
+    \field{sortinithash}{K}
+    \field{title}{selfie}
+    \verb{url}
+    \verb http://selfie.cs.uni-salzburg.at/
+    \endverb
+    \field{month}{08}
+    \field{year}{2024}
+  \endentry
+
+  \entry{DBLP:journals/jsat/NiemetzPB14}{article}{}{}
+    \name{author}{3}{}{%
+      {{hash=NA}{%
+         family={Niemetz},
+         familyi={N\bibinitperiod},
+         given={Aina},
+         giveni={A\bibinitperiod},
+      }}%
+      {{hash=PM}{%
+         family={Preiner},
+         familyi={P\bibinitperiod},
+         given={Mathias},
+         giveni={M\bibinitperiod},
+      }}%
+      {{hash=BA}{%
+         family={Biere},
+         familyi={B\bibinitperiod},
+         given={Armin},
+         giveni={A\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{NAPMBA1}
+    \strng{fullhash}{NAPMBA1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{N}
+    \field{sortinithash}{N}
+    \verb{doi}
+    \verb 10.3233/sat190101
+    \endverb
+    \field{number}{1}
+    \field{pages}{53\bibrangedash 58}
+    \field{title}{Boolector 2.0}
+    \verb{url}
+    \verb https://doi.org/10.3233/sat190101
+    \endverb
+    \field{volume}{9}
+    \field{journaltitle}{J. Satisf. Boolean Model. Comput.}
+    \field{year}{2014}
+  \endentry
+
+  \entry{btor2}{inproceedings}{}{}
+    \name{author}{4}{}{%
+      {{hash=NA}{%
+         family={Niemetz},
+         familyi={N\bibinitperiod},
+         given={Aina},
+         giveni={A\bibinitperiod},
+      }}%
+      {{hash=PM}{%
+         family={Preiner},
+         familyi={P\bibinitperiod},
+         given={Mathias},
+         giveni={M\bibinitperiod},
+      }}%
+      {{hash=WC}{%
+         family={Wolf},
+         familyi={W\bibinitperiod},
+         given={Clifford},
+         giveni={C\bibinitperiod},
+      }}%
+      {{hash=BA}{%
+         family={Biere},
+         familyi={B\bibinitperiod},
+         given={Armin},
+         giveni={A\bibinitperiod},
+      }}%
+    }
+    \list{organization}{1}{%
+      {Springer}%
+    }
+    \strng{namehash}{NA+1}
+    \strng{fullhash}{NAPMWCBA1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{N}
+    \field{sortinithash}{N}
+    \field{booktitle}{International Conference on Computer Aided Verification}
+    \field{pages}{587\bibrangedash 595}
+    \field{title}{Btor2, btormc and boolector 3.0}
+    \field{year}{2018}
+  \endentry
+
+  \entry{Peter_hyperfine_2023}{software}{}{}
+    \name{author}{1}{}{%
+      {{hash=PD}{%
+         family={Peter},
+         familyi={P\bibinitperiod},
+         given={David},
+         giveni={D\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{PD1}
+    \strng{fullhash}{PD1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{P}
+    \field{sortinithash}{P}
+    \field{title}{{hyperfine}}
+    \verb{url}
+    \verb https://github.com/sharkdp/hyperfine
+    \endverb
+    \field{version}{1.16.1}
+    \field{month}{03}
+    \field{year}{2023}
+  \endentry
+\enddatalist
+\endinput
