@@ -1,0 +1,28 @@
+# This CITATION.cff file was generated with cffinit.
+# Visit https://bit.ly/cffinit to generate yours today!
+
+cff-version: 1.2.0
+title: peRISCope
+message: >-
+  If you use this software, please cite it using the
+  metadata from this file.
+type: software
+authors:
+  - given-names: Nadir
+    family-names: Fejzić
+    email: nadir@notfloor.com
+    orcid: 'https://orcid.org/0009-0009-7962-8354'
+    affiliation: Paris Lodron University of Salzburg
+repository-code: 'https://github.com/nfejzic/periscope'
+abstract: >-
+  peRISCope is a project for exploring the reasoning
+  performance of RISC-V software models in BTOR2. The name
+  periscope is derived from the idea of exploring
+  performance of RISC-V models, and the idea of a periscope
+  that can be used to explore the unknown.
+keywords:
+  - bounded model checking
+  - rust
+  - risc-v
+  - smt
+license: Apache-2.0
