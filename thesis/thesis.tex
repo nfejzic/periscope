@@ -201,15 +201,16 @@ Univ.-Prof. Dipl.-Inform. Dr.-Ing. Christoph Kirsch
 
 \abstract{When working with software programs, we often want to ensure that
 they uphold certain invariants. There are various techniques for this, such as
-testing. However, testing is not exhaustive. Instead, we can reduce the problem
-of proving that the program upholds invariants to the boolean satisfiability
-problem. This reduction is done by encoding the program as a sequence of
-boolean formulas - known as the model, and solving the satisfiability of the
-resulting formula. Solving this problem is computationally expensive, as it is
-NP-Complete. In this thesis, we explore how different parameters of the
-generated models affect the performance of SAT solvers. In particular we
-present a benchmarking toolbox, and run benchmarks for different memory
-granularity parameters.}
+testing. However, testing is not exhaustive. Instead, we can formulate the
+problem of program correctness as the state reachability problem and reduce it
+to the boolean satisfiability problem. This reduction is done by encoding the
+program as a sequence of boolean formulae - known as the model, and solving the
+satisfiability of the resulting formula. Solving this problem is
+computationally expensive, as it is NP-Complete. In this thesis, we explore how
+different parameters of the generated models affect the performance of SAT
+solvers. In particular we present a benchmarking toolbox, as well as benchmark
+results of times it took to solve models with different memory granularity
+parameters.}
 
 % \vspace*{\fill}
 
@@ -235,18 +236,18 @@ Doing that is not feasible for most of the practical programs. What we can do
 instead, is to prove that program has the desired properties for any input.
 Software programs are a series of machine instructions executed by a machine.
 Instructions and memory access in a machine are implemented using logical gates
-in hardware. These logical gates can be modelled as boolean formulas, which
-means that programs can be modelled as boolean formulas as well.
+in hardware. These logical gates can be modelled as boolean formulae, which
+means that programs can be modelled as boolean formulae as well.
 
-We can take advantage of this fact, and reduce the problem of proving the
-correctness of software programs to the boolean satisfiability problem. During
-the conversion of program to a boolean formula (the model) we can add
-constraints that model the desired properties of the program. Solving such
-model gives us the answer whether the program satisfies all of the constraints,
-and thus whether it possesses the desired properties. 
+Correctness of a program can be formulated as the state reachability problem
+and then reduced to the boolean satisfiability problem. During the conversion
+of program to a boolean formula (the model) we can add constraints that model
+the desired properties of the program. Solving such model gives us the answer
+whether the program satisfies all of the constraints, and thus whether it
+possesses the desired properties. 
 
 Generating such models can be computed linearly in the size of the program
-(number of instrucitons). But since the model is a reduction of the correcntess
+(number of instrucitons). Since the model is a reduction of the correctness
 problem to a satisfiability problem, solving the model means solving the
 satisfiability problem. The satisfiability problem is, however, NP-Complete.
 This means that solving of such models is computationally expensive. 
@@ -261,9 +262,9 @@ is better in this regard, but worse in others. In general, extracting values
 from memory that differ in number of bits from the used memory granularity
 increases complexity. We might need to use bit-shifting and bit-masking to
 extract the desired value. If our program has frequent access to values in
-memory smaller than the configured memory granularity, then this adds more
-complexity for each such memory access. So memory granularity might affect the
-solving performance.
+memory smaller or larger than the configured memory granularity, then this adds
+more complexity for each such memory access. So memory granularity might affect
+the solving performance.
 
 We can tweak parameters of models to analyze how these shifts in complexity
 affect the performance of solvers. In this thesis we're particularly
@@ -307,28 +308,31 @@ double the number of tests. Testing with such large input space is not feasible
 for most of programs.
 
 Better approach is to prove that our program is correct for any given input. In
-our case, each property we want to check for is a particular state we want our
-program to reach. What we're interested in, is whether an input for the given
-program exists, such that a machine reaches a certain state while it executes
-that program. This is known as the state reachability problem. In this thesis
-we further reduce the state reachability problem to the boolean satisfiability
-problem. The formal definition of the problem we want to solve is called model.
-The reduction is done in such a way, that our model is satisfiable if and only
-if the state is reachable. This means that, if our model is satisfiable, our
-program upholds the desired constraints.
+other words, we want to prove that given an input, the program reaches a
+specific state \cite{dunlop1982comparative}. What we're interested in, is
+whether an input for the given program exists, such that a machine reaches a
+certain state while it executes that program. This is known as the state
+reachability problem \cite{abdulla2000symbolic}. In this thesis we further
+reduce the state reachability problem to the boolean satisfiability problem.
+The formal definition of the problem we want to solve is called model. The
+reduction is done in such a way, that our model is satisfiable if and only if
+the specified state is reachable. This means that, if our model is satisfiable,
+our program upholds the desired constraints. Analog if we do not want the
+program to reach a specific state, then satisfiable model means that our
+program violates some constraints \cite{brummayer2008btor}.
 
 \subsection{Reduction to SAT Problem}
 
 A program is a series of instructions that can be executed by a particular
-machine. The machine decodes instructions and executes them. Instructions can 
-have various semantics such as arithmetic operations, memory access, branching,
-and so on. By executing the instructions, machine changes its state. Minimal
-amount of state that is changed for each instruction is the update of the
-program counter. Apart from program counter, the machine can modify its
-registers and main memory as well.
+machine. The machine fetches instructions, decodes  and executes them.
+Instructions can have various semantics such as arithmetic operations, memory
+access, branching, and so on. By executing the instructions, machine changes
+its state. Minimal amount of state that is changed for each instruction is the
+update of the program counter. Apart from program counter, the machine can
+modify its registers and main memory as well \cite{flynn2007computer}.
 
-% We can define instructions as mappings from the current state to the next state.
-% But is that relevant in this context?
+% We can define instructions as mappings from the current state to the next
+% state. But is that relevant in this context?
 
 \begin{figure}
     \includegraphics[width=\linewidth]{assets/full_adder_schematic.png}
@@ -342,22 +346,22 @@ registers and main memory as well.
 
 Instructions in machines are implemented using logical gates, such as AND, OR,
 NOT and other gates. Logical gates are devices that perform boolean functions 
-and are implementations of boolean formulas. In other words, we can model the
-logical gates of the machine using boolean formulas. The logical circuit of one
-instruction becomes a boolean formula in our model. An example of a 1-bit full
-adder schematic can be seen in figure \ref{fig:full_adder_schematic}. The
-schematic shows circuit logic for arithmetic addition with two 1-bit inputs $A$
-and $B$, one 1-bit value from previous addition called carry in $C_{in}$ and it
-computes the 1-bit sum $S$ and 1-bit carry out $C_{out}$ value in case of an
-overflow. If we have a simple RISC-V program containing the following series of
-instructions:
+and are implementations of boolean formulae. In other words, we can model the
+logical gates of the machine using boolean formulae \cite{page2009practical}.
+The logical circuit of one instruction becomes a boolean formula in our model.
+An example of a 1-bit full adder schematic can be seen in figure
+\ref{fig:full_adder_schematic}. The schematic shows circuit logic for
+arithmetic addition with two 1-bit inputs $A$ and $B$, one 1-bit value from
+previous addition called carry in $C_{in}$ and it computes the 1-bit sum $S$
+and 1-bit carry out $C_{out}$ value in case of an overflow. If we have a simple
+RISC-V program containing the following series of instructions:
 \begin{lstlisting}[language={[RISC-V]Assembler}, label=lst:example_riscv_program]
 addi t0, zero, 4
 addi t1, zero, 2
 mul  t0, t0, t1
 \end{lstlisting}
 then we can model the program with the following operations:
-\begin{lstlisting}[language=C, label=lst:example_model, caption=Example model]
+\begin{lstlisting}[language=C, label=lst:example_model, caption=Example model, captionpos=b]
 t0_1 = 0    + 4    && pc_1 = pc_0 + 4 &&
 t1_1 = 0    + 2    && pc_2 = pc_1 + 4 &&
 t0_2 = t0_1 * t1_1 && pc_3 = pc_2 + 4 
@@ -368,32 +372,35 @@ listing \ref{lst:example_model}. What we encoded is a satisfiability modulo
 theory formula (SMT-Formula). That is, we encoded the program as a series of
 operations in theory of bit-vectors. This model is satisfiable if and only if
 there exists an assigment of values to variables such that the formula is true.
-For the SMT-Formula bit-vectors and arrays of bit-vectors are used. Bit-vectors
-represent signed and unsigned integers of arbitrary bit-length, and bit vector
-arrays are arrays of N-bit bit-vectors as values indexable by an M-bit
-bit-vector. The model we encoded is an intermediate step, we need to further
-reduce it to boolean formula.
+Variables in an SMT-Formula are bit-vectors and arrays of bit-vectors, hence
+the theory of bit-vectors. Bit-vectors represent signed and unsigned integers
+of arbitrary but fixed bit-length \cite{de2009satisfiability}, and bit vector
+arrays which contain multiple values (either bit-vectors or arrays), indexable
+by a bit-vector \cite{btor2}. Since the model we encoded operates on
+bit-vectors and arrays of bit-vectors and not on boolean values, it is not
+boolean logic. It is an intermediate step that must be further reduced to
+boolean formula.
 
 If we recall the full adder schematic in figure \ref{fig:full_adder_schematic},
-we can see that the logic gates correspond to the following boolean formulas:
+we can see that the logic gates correspond to the following boolean formulae:
 
 \begin{align*}
     S	    &= A \oplus B \oplus C_{in} \\
     C_{out} &= (A \land B) \lor (C_{in} \land (A \oplus B))
 \end{align*}
 
-This is a series of boolean formulas that describe the behaviour of the 1-bit
+This is a series of boolean formulae that describe the behaviour of the 1-bit
 full adder. For two bit full adder, we would have two sum outputs $S_1, S_2$,
 one initial carry in $C_{in1}$, and the carry out of the first sum $C_{out1}$
 would be the carry in to the second sum $C_{out1} = C_{in2}$. The same process
 applies for full adder of values with arbitrary bit length. The series of
 operations in listing \ref{lst:example_model} can be encoded in a similar
 way. This technique of encoding semantics of arithmetic and bitwise operations
-is called bit-blasing. We can add more constraints to the model that do not
-come from the program, but rather specify whether the machine reaches a
-particular state. For example, we can add constraints that check whether a
-certain register of the machine (variable) contains the value $0$ and we
-perform a division with that register. 
+is called bit-blasing \cite{barrett2021satisfiability}. We can add more
+constraints to the model that do not come from the program, but rather specify
+whether the machine reaches a particular state. For example, we can add
+constraints that check whether a certain register of the machine (variable)
+contains the value $0$ and we perform a division with that register. 
 
 By doing so, we formulated a satisfiability problem, and by solving it we prove
 that either our program does not perform division by zero for any given input,
@@ -407,66 +414,84 @@ instructions. This is the essence of bounded model checking.
 
 \subsection{Complexity control with model parameters}
 
-Model can be formulated for any given program with the technique of bit
-blasting. There are multiple possibilities when generating model where certain
-trade-offs can be made. In our models of the machine bit-vectors are used for
-values and arrays of bit-vectors for main memory and registers. As already
-mentioned, arrays contain bit-vectors of some fixed bit-length. If we want to
-model M-bit memory with an array that contains N-bit bit-vectors we need an
+There are multiple possibilities when generating model and certain trade-offs
+can be made. In our models of the machine, bit-vectors are used for values and
+arrays of bit-vectors for main memory and registers. In particular, we used
+one-dimensional arrays which contain bit-vectors of some fixed bit-length. When
+modelling M-bit memory with an array that contains N-bit bit-vectors we need an
 address space of $2^{(M - N)}$ entries. More precisely, the array must be
 indexed with a bit-vector of bit length $(M - N)$. Size of bit-vectors stored
-in the array represent the memory granularity, the size of each memory block
+in the array represent the memory granularity - the size of each memory block
 our machine can access. By changing the memory granularity we can directly
 impact the size of the array.
 
 When accessing memory each memory block is addressable by an address, which is
 a bit-vector in our case. Logical circuit exists for this purpose in machine as
 well. Naively implemented, this could be a chain of something similar to
-if-else statements. In reality machines use a logical circuit called
-demultiplexer, which takes an input and routes it to one of several possible
-outputs according to an input binary address \cite{horowitz1989art}.
-Demultiplexer is another logical circuit that has $N$ inputs, each input having
-two possible values, and $2^N$ outputs. By translating the circuit logic of
-demultiplexer, we can model it as boolean formula as well, effectively
-modelling memory access of the machine. Arrays used for memory representation
-are indexed by N-bit bit-vectors, so the demultiplexer will have an $N$-bit
-input value. Complexity of the resulting circuit logic directly depends on the 
-size of the input, so choosing smaller memory granularity increases the
-complexity of the model as well.
+if-else statements. In reality machines use a logical circuits such as
+decoders, multiplexers and demultiplexers. Decoders have an N-bit address as
+input which is decoded and used to activate one of $2^N$ possible outputs.
+Multiplexer has $2^N$ inputs, one of which is selected based on the output
+produced by the decoder given an N-bit address. Analog, demultiplexer has one
+input which is routed to one of $2^N$ outputs based on the address.
+\cite{horowitz1989art}. Circuit logic of these components can be modelled as
+boolean formulae as well, effectively modelling memory access of the machine.
+Number of inputs for multiplexer (or outputs for demultiplexer) multiplied by
+the size of each input is the size of modelled memory. The number of outputs of
+address decoder must match the number of inputs/outputs of (de-)multiplexer.
+Size of each input/output corresponds to memory granularity, and so the memory
+granularity directly impacts the complexity of resulting circuit logic for
+memory access and therefore the complexity of the model. Smaller memory
+granularity requires more lines for input/output and larger memory addresses,
+which increases complexity in all of the mentioned components.
+
+\begin{figure}
+    \includegraphics[width=\linewidth]{assets/64_bit_instruction_load.png}
+    \centering
+    \caption{Loading 32-bit instruction from memory with 64-bit granularity.}
+    \label{fig:instruction_load_example}
+\end{figure}
 
 On the other hand, if we choose larger memory granularity, we can access the
-whole memory with fewer addresses. Consequently, this reduces the memory access
-circuits and therefore the complexity in corresponding part of our model.
-However, it is not always the case that we need to access values in memory that
-have the same size as our chosen granularity. When that's not the case, we have
-to perform bit-shifting and bit-masking operations in order to load the correct
-value. For example, if we want to load a 32-bit value from memory with 8-bit
-granularity, we will have to access memory 4 times and perform bit-shifting to
-store parts of value at the correct position. Smaller granularity in this case
-results in four memory accesses through large circuit and four bit-shifting
-operations. If we, however, want to load a 32-bit value from memory with 64-bit
-granularity, we will have to perform a single load operation and bit-masking to
-trim the value to the correct size. Larger granularity in this case reduces 
-number of times we need to access the memory and reduces the number of
-operations needed to correctly load the value.
+whole memory with fewer addresses. Consequently, this reduces the complexity of
+memory access circuits and therefore the complexity in corresponding part of
+our model. However, it is not always the case that we need to access values in
+memory that have the same size as our chosen granularity. When that's not the
+case, we have to perform bit-shifting and bit-masking operations in order to
+load the correct value. For example, if we want to load a 32-bit value from
+memory with 8-bit granularity, we will have to access memory four times and
+perform bit-shifting to store bits of value at the correct offset. Smaller
+granularity in this case results in four memory accesses through large circuit
+and four bit-shifting operations. If we, however, want to load a 32-bit value
+from memory with 64-bit granularity, complexity varies greatly depending on the
+alignment of the value in memory. As we can see in figure
+\ref{fig:instruction_load_example}, when loading a value that is fully
+contained inside of a 64-bit block, a single load with bit shifting and/or bit
+masking will suffice. But if the value is split between two 64-bit blocks, we
+need two loads, both bit shifting and bit masking and finally combining the two
+values. Also, determining whether the value is split between two blocks
+requires division operations to be performed, increasing the number of
+operations on each access.
 
 In our models, we can control the memory granularity and therefore influence
 the complexity of models in various parts. In particular, we can control two
 different parts of memory: memory that holds the program instructions (code)
 and memory that holds the data (data, heap and stack segments). In particular,
-we try different combinations of code and data memory granularity.
+we experimented with different combinations of code and data memory
+granularity.
+
 
 \section{Model generation}
 
 In order to properly model the machine, we need to generate a model that
 resembles it. Models need to precisely define the semantic of memory access and
 machine instructions. As we already mentioned, we do not generate boolean
-formula directly, but rather an SMT-Formula first. We use a speical language
+formula directly, but rather an SMT-Formula first. We use a special language
 for this purpose called BTOR2.
 
-\subsection{BTOR2 - brief introduction}
+\subsection{Introduction to BTOR2}
 
-BTOR2 is an extension of BTOR, which is a format for quantifier-free formulas
+BTOR2 is an extension of BTOR, which is a format for quantifier-free formulae
 over bit-vectors and arrays. BTOR2 extends BTOR by a set of additional features
 and includes witness, invariant and fairness constraints and liveness
 properties. BTOR2 supports defintion of sorts, which can be thought of as
@@ -476,36 +501,36 @@ a sort id for a sort definition, or node id for a node definition. Nodes in
 BTOR2 can define operations such as addition, multiplication etc., or they can
 be variable declaration, memory access, constraints and so on \cite{btor2}.
 
-In listing \ref{lst:btor2_example} we can see an example of BTOR2 model. In 
-first two lines we define two sorts, one is a 1-bit bit-vector with sort id 1,
-and the other is a 32-bit bit-vector with sort id 2. In the following line we
-have a node with node id 3 that defines an input variable \texttt{turn} of sort
-with sort id 1, meaning that \texttt{turn} is a 1-bit bit-vector. In the next
-line we define a constant 0 of sort with sort id 2. In next two lines we define
-two 32-bit bit-vector state variables \texttt{a} and \texttt{b}, and then 
-initialize them with previously defined constant 0. We then define a constant 1,
-which we use to increment the state variables. We can observe that most of the
-keywords first reference a sort id. The referenced sort id is the type of the
-node, and the node itself evaluates to a certain value that we can reference by
-the node's id. In nodes 12 and 13, we use an if-then-else construct, where we
-evaluate to a certain value based on the condition. For state variable
-\texttt{a} we check whether the value of node 3 is 1 (true), and if it is, the
-node 12 evaluates to value of node 5, otherwise it evaluates to the value of
-node 10. For state variable \texttt{b} we check whether the value of node 3 is
-false (-3 negates the value of node 3), and if so we use the value of node 6,
-otherwise value of node 11. Since nodes 5 and 6 are definitions of state
-variables, using them means using whatever the current value of the variable
-is. In nodes 14 and 15 we define the next function, which is the function that
-updates the state variables, and these functions use the previously defined 
-if-then-else nodes for the update. In next few lines we define a 32-bit
-bit-vector constant 3, we have two nodes that check whether our state variables
-have value 3. If both of them have value 3, the node 19 evaluates to 1 (true),
-and in node 20 we define a bad state. The node 20 simply means, if the value of
-node 19 is 1, then this bad state is reached. In listing \ref{lst:c_code} we 
-can see the corresponding \texttt{C} code for the BTOR2 model.
+In listing \ref{lst:btor2_example} we can see an example of model in BTOR2. In
+first two lines we define two sorts, one is a 1-bit bit-vector with sort id
+$1$, and the other is a 32-bit bit-vector with sort id $2$. In the following line
+we have a node with node id $3$ that defines an input variable \texttt{turn} of
+sort with sort id $1$, meaning that \texttt{turn} is a 1-bit bit-vector. In the
+next line we define a constant $0$ of sort with sort id $2$. In next two lines
+we define two 32-bit bit-vector state variables \texttt{a} and \texttt{b}, and
+then initialize them with previously defined constant $0$. We then define a
+constant $1$, which we use to increment the state variables. We can observe
+that most of the keywords first reference a sort id. The referenced sort id is
+the type of the node, and the node itself evaluates to a certain value that we
+can reference by the node's id. In nodes $12$ and $13$, we use an if-then-else
+construct, where we evaluate to a certain value based on the condition. For
+state variable \texttt{a} we check whether the value of node $3$ is $1$
+($true$), and if it is, the node $12$ evaluates to value of node $5$, otherwise
+it evaluates to the value of node $10$. For state variable \texttt{b} we check
+whether the value of node $3$ is false ($-3$ negates the value of node $3$),
+and if so we use the value of node $6$, otherwise value of node $11$. Since
+nodes $5$ and $6$ are definitions of state variables, using them means using
+whatever the current value of the variable is. In nodes $14$ and $15$ we define
+the next function, which is the function that updates the state variables, and
+these functions use the previously defined if-then-else nodes for the update.
+In next few lines we define a 32-bit bit-vector constant $3$, we have two nodes
+that check whether our state variables have value $3$. If both of them have
+value $3$, the node $19$ evaluates to $1$ (true), and in node $20$ we define a
+bad state. The node $20$ simply means, if the value of node $19$ is $1$, then
+this bad state is reached. In listing \ref{lst:c_code} we can see the
+corresponding \texttt{C} code for the BTOR2 model.
 
-\noindent\begin{minipage}{.45\textwidth}
-\begin{lstlisting}[label=lst:btor2_example, caption={Example BTOR2 model},captionpos=b]
+\begin{lstlisting}[label=lst:btor2_example, caption={Example BTOR2 model for \texttt{C} code in listing \ref{lst:c_code}},captionpos=b]
 1 sort bitvec 1
 2 sort bitvec 32
 3 input 1 turn
@@ -527,18 +552,17 @@ can see the corresponding \texttt{C} code for the BTOR2 model.
 19 and 1 17 18
 20 bad 19
 \end{lstlisting}
-\end{minipage}\hfill
-\begin{minipage}{.5\textwidth}
-\begin{lstlisting}[label=lst:c_code, language=c, caption={Corresponding code for the model},captionpos=b]
+
+
+\newpage
+\begin{lstlisting}[label=lst:c_code, language=c, caption={\texttt{C} code we generate a model from},captionpos=b]
 int main(void) {
     bool turn;
-
     unsigned int a = 0;
     unsigned int b = 0;
 
     while (1) {
         turn = read_bool();
-
         assert(!(a == 3 && b == 3));
 
         if (turn)
@@ -548,10 +572,9 @@ int main(void) {
     }
 }
 \end{lstlisting}
-\end{minipage}
 
 The BTOR2 format encodes the SMT-Formula. To solve the formula, we use a set of
-tools that acompany the BTOR2 format contained in the project Boolector
+tools that acompany the BTOR2 format available as part of the Boolector project
 \cite{DBLP:journals/jsat/NiemetzPB14}. In particular, we use the reference
 implementation of a bounded model checker \texttt{btormc}. The bit-blasting of 
 SMT-Formula is performed by the \texttt{btormc} before solving it. We run the
@@ -563,7 +586,7 @@ instructions we chose as the upper bound. On the other hand, if the program
 satisfies the constraints, a witness format is produced. We can see an example
 output of witness format in listing \ref{lst:btor_witness}.
 
-\begin{lstlisting}[label=btor_witness, caption={BTOR2 Witness Format for model in listing \ref{lst:btor2_example}}, captionpos=b]
+\begin{lstlisting}[label=lst:btor_witness, caption={BTOR2 Witness Format for model in listing \ref{lst:btor2_example}}, captionpos=b]
 sat
 b0
 @0
@@ -595,21 +618,21 @@ satisfied.
 
 Generating BTOR2 models for programs is not done by hand. That would be tedious
 and error prone, as models tend to be very large counting tens of thousands of
-lines. Instead, we use tool capable of generating BTOR2 models. In particular,
-we use \texttt{rotor}, which is a self-translating modeling
-engine called based on \texttt{selfie} that translates full RISC-V code
-including all of \texttt{selfie} and itself to BTOR2 and SMT-LIB formulae that
-are satisfiable if and only if there is input to the code such that the code
-exits with non-zero exit codes, performs division by zero, or accesses memory
-outside of memory segments. Rotor also generates models that enable RISC-V code
-synthesis \cite{gh:rotor}.
+lines. Instead, we use tool capable of generating BTOR2 models. Specifically,
+we use \texttt{rotor}, which is a self-translating modeling engine based on
+\texttt{selfie} that translates full RISC-V code including all of
+\texttt{selfie} and itself to BTOR2 and SMT-LIB formulae that are satisfiable
+if and only if there is input to the code such that the code exits with
+non-zero exit codes, performs division by zero, or accesses memory outside of
+memory segments. Rotor also generates models that enable RISC-V code synthesis
+\cite{gh:rotor}.
 
 \subsubsection{Model Parameters and Checks}
 
 \texttt{rotor} accepts multiple arguments and parameters that can be used to
 adjust produced models. By default multiple checks are enabled in
 \texttt{rotor}, and we have to explicitely disable them using following command
-line argumnets:
+line arguments:
 
 \begin{itemize}
     \item \texttt{-Pnobadexitcode} - Disables check for bad exit code. Without
@@ -628,7 +651,7 @@ line argumnets:
         remainder) overflow. Without this option, model is satisfiable if an
         input exists such that program performs division with an overflow.
     \item \texttt{-Pnosegfaults} - Disables check for segfaults, which checks
-        whether the program accesses memory outside of memory segments.
+        whether the program accesses memory outside of defined memory segments.
 \end{itemize}
 
 Apart from these checks, we can also modify some parameters of the model.
@@ -660,52 +683,420 @@ In case of using binaries as input, they must be compiled for the
 
 \section{Experiment setup}
 
-\subsection{peRISCope - short outline of available functionality}
+Running the experiment consists of multiple steps. This includes obtaining
+binaries compiled for RISC-V architecture and generating models in BTOR2 format
+from those binaries. After that, \texttt{btormc} is run on each model multiple
+times, measuring and tracking the time it took to solve the model. We also want
+to confirm that models are correct and are satisfiable for the right reason.
+With the goal to facilitate this process, we introduce \texttt{peRISCope}.
+
+\subsection{peRISCope}
 
 \texttt{peRISCope} is a benchmarking toolbox designed to make the process of 
-parameterized model generation and benchmarking of model solving easier. The 
-tool also supports parsing of BTOR2 witness format in order to provide more 
-information, such as which property was satisfied, and transitions of inputs
-through frames that satisfy said property. \texttt{peRISCope} accepts a
-configuration file, which can be used to specify the parameters for models,
+parameterized model generation and benchmarking of model solving easier
+\cite{Fejzic_peRISCope}. The tool also supports parsing of BTOR2 witness format
+in order to provide more information, such as which property was satisfied, and
+transitions of inputs through frames that satisfy said property.
+\texttt{peRISCope} accepts a configuration file in either \texttt{YAML} or
+\texttt{JSON} format, which can be used to specify the parameters for models,
 timeout for maximum duration of model solving, list of files for filtering, and
-flags for \texttt{btormc}. The \texttt{peRISCope} performs multiple run. In
-each run it reads the configuration, runs \texttt{rotor} with parameters of
-that run which results in multiple models being generated in (specific)
-\texttt{selfie} directory. Model generation is fast, so we can generate models
-for all example files with no filtering. After the models are generated,
+flags for \texttt{btormc}. The \texttt{peRISCope} performs multiple runs,
+each time invoking \texttt{rotor} with parameters of that run which results in
+multiple models being generated in (specific) subdirectory inside
+\texttt{selfie}. Model generation is fast, so we can generate models for all
+example files without filtering. After the models are generated,
 \texttt{btormc} is run on each model multiple times using \texttt{hyperfine}
-\cite{Peter_hyperfine_2023}, measuring the time it took each time. Example of
-the config file can be seen in listing 
-\ref{lst:periscope_config}.
+\cite{Peter_hyperfine_2023}, measuring the time it took each time. In example
+configuration file shown in listing \ref{lst:periscope_config} we tell the
+\texttt{peRISCope} to generate models with different code memory granularity
+and to benchmark only models that match any of the entries in the
+\texttt{files} list. The \texttt{timeout} parameter sets the maximum number of
+seconds solving is allowed to take.
 
-\begin{lstlisting}[label=lst:periscope_config, caption={Example peRISCope configuration file}, captionpos=b]
+\begin{lstlisting}[label=lst:periscope_config, caption={Example peRISCope
+                configuration file in \texttt{YAML} format}, captionpos=b]
 timeout: 300
-files: # perform model checking only on files with these names
+files:
   - "division-by-zero-3-35-rotorized.btor2"
   - "invalid-memory-access-fail-2-35-rotorized.btor2"
 
-runs: # model configuration flags for 'rotor'
+runs:
   8-bit-codeword-size: "0 -codewordsize 8"
   16-bit-codeword-size: "0 -codewordsize 16"
   32-bit-codeword-size: "0 -codewordsize 32"
   64-bit-codeword-size: "0 -codewordsize 64"
-
 \end{lstlisting}
 
-\subsection{Workflow (peRISCope configuration, model generation, benchmarking, parsing of witness format, result files)}
+\subsection{Benchmarking Workflow}
 
+The \texttt{peRISCope} can be compiled to a binary and at the time of this
+writing supports two commands. One command is \texttt{parse-witness} which
+takes witness format of \texttt{btormc} as input. The witness format is parsed,
+and the flow of inputs and states through frames is printed to \texttt{stdout}
+in a condensed format, as can be seen in listing \ref{periscope:parse_witness}.
+This command has an optional parameter which is used to provide the path to
+BTOR2 model file for which the witness format was generated. \texttt{peRISCope}
+reads the BTOR2 file and extracts more information about the model such as the
+names of properties that were satisfied. This enables \texttt{peRISCope} to
+display additional information in the result of witness parsing and evaluation,
+like in listing \ref{periscope:parse_witness_ctx}.
+
+\begin{lstlisting}[label=periscope:parse_witness, caption={Example output of
+                \texttt{peRISCope} \texttt{parse-witness} command.},
+                captionpos=b]
+Satisifed properties in 77 steps:
+    Bad at 7
+
+Inputs flow:
+States flow:
+    input-buffer:
+           #0: 48 ([00000000] -> 00110000)
+        -> #1: end
+\end{lstlisting}
+
+\begin{lstlisting}[label=periscope:parse_witness_ctx, caption={Example output
+                of \texttt{peRISCope} \texttt{ parse-witness} command with
+                provided BTOR2 file for context.}, captionpos=b]
+Satisifed properties in 77 steps:
+    Bad at 7 named 'core-0-division-by-zero' with nid: 37027
+
+Inputs flow:
+States flow:
+    input-buffer:
+           #0: 48 ([00000000] -> 00110000)
+        -> #1: end
+\end{lstlisting}
+
+The output of \texttt{peRISCope} command \texttt{parse-witness} describes that
+the given properties were satisfied in some number of frames. Additionally, it
+shows that the \texttt{input-buffer} variable, modelled as \texttt{state} in
+BTOR2, is assigned value $48$ at frame $0$, and it did not change until the
+very last frame.
+
+The second command of \texttt{peRISCope} is the \texttt{bench} command. This
+command orchestrates the execution of multiple different commands. First, it 
+runs the \texttt{rotor} generating models with specific configuration. Then it
+runs the \texttt{hyperfine} executing \texttt{btormc} on each model, collecting
+benchmarking statistics. \texttt{btormc} may run very long for certain models,
+so if the \texttt{timeout} option is set in used configuration, we wrap the 
+invokation in \texttt{timeout} command of GNU coreutils \cite{gnu:coreutils}.
+We mark the result as \texttt{Failed} if we use \texttt{timeout} and the model
+solving does not terminate within the specified time. Otherwise, witness format
+is generated, parsed alongside the provided BTOR2 model for context. The result
+of the whole run is then stored in a results file, example of which can be seen
+in listing \ref{lst:results_file}.
+
+The results are stored in \texttt{JSON} format, with one entry per BTOR2 model
+file. The \texttt{Success} key indicates that \texttt{btormc} terminated, and
+list of satisfied properties is presented. Further, we store the number of
+frames it took to satisfy the properties and the results of \texttt{hyperfine}
+benchmark runs, containing statistics as well as specific timings and exit
+codes of each run. We also store the word count in BTOR2 model file, and also
+word count of \texttt{btormc} dump for the same model file after it processed
+it. This is useful for tracking the correlation between model size and the time
+it took solving it.
+
+Accompanying the \texttt{peRISCope} binary, we also have a script written in
+Python. The script takes the results file as input and generates plots for
+easier visual inspection of the results. The script supports different types of
+plots, such as box plots and histograms. Linear and log scaling of plots is
+available. In figure \ref{fig:results_plot} is one such plot.
+
+\begin{figure}
+    \includegraphics[width=\linewidth]{assets/plot_example.png}
+    \centering
+    \caption{
+        Plot of results for two BTOR2 models with log scale.
+    }
+    \label{fig:results_plot}
+\end{figure}
+
+The models can be generated from \texttt{C*} source code. \texttt{rotor}
+handles this by first compiling the source code with \texttt{starc} and then
+generating the BTOR2 model from the resulting binary. The models can also be
+generated from binaries directly. \texttt{rotor} has a flag \texttt{-l} for
+loading a binary file. Binaries comiled with either \texttt{starc} or
+\texttt{gcc} are supported. The \texttt{starc} compiles binaries for RISC-V
+architecture out of the box. In case of \texttt{gcc} we either have to compile
+the binaries on a RISC-V machine, or we have to use the RISC-V toolchain for
+cross-compilation \cite{riscv_gnu}. In this thesis, we compiled binaries and
+generated models from the same set of \texttt{C*} source code files with both
+\texttt{starc} and \texttt{gcc}. In particular, we used the files found in
+\texttt{examples/symbolic/} directory in the \texttt{selfie} repository
+\cite{gh:rotor}.
+
+The benchmarks were run on a machine with following specifications: 
+\begin{itemize}
+    \item Huawei Matebook 16 (model: CREM-WFD9)
+    \item CPU: AMD Ryzen 7 5800H (16-core) clocked at 4.46 GHz
+    \item Graphics: AMD Radeon Vega Mobile Series (Integrated)
+    \item Memory: 16GB LPDDR4-4167
+\end{itemize}
+\newpage
+\begin{lstlisting}[label=lst:results_file, caption={Example of \texttt{peRISCope} results file}, captionpos=b]
+{
+  "division-by-zero-3-35-rotorized.btor2": {
+    "Success": {
+      "props": [
+        {
+          "kind": "Bad",
+          "name": "core-0-division-by-zero",
+          "node": 37027,
+          "idx": 7
+        }
+      ],
+      "steps": 77,
+      "hyperfine": {
+        "results": [
+          {
+            "command": "btormc division-by-zero-3-35-rotorized.btor2 -kmax 200",
+            "mean": 0.3718056574400001,
+            "stddev": 0.008814608910627868,
+            "median": 0.37023892844,
+            "user": 0.33166193999999993,
+            "system": 0.0399969,
+            "min": 0.36236449744,
+            "max": 0.38613962244,
+            "times": [
+              0.37023892844,
+              // ...
+            ],
+            "exit_codes": [
+              0,
+              // ...
+            ]
+          }
+        ]
+      },
+      "wc_raw": 273051,
+      "wc_btormc_dump": 93238
+    }
+  }
+}
+\end{lstlisting}
+\newpage
 
 \section{Experiment results}
 
+With the setup described in previous section, we generated BTOR2 models with 
+following examples: 
+
+\begin{itemize}
+
+    \item Simple assignment - satisfiable on specific input manipulated with
+        basic arithmetic.
+
+    \item Division by zero - satisfiable if division by zero is performed.
+
+    \item Invalid memory access fail - satisfiable if invalid memory is
+        accessed, such as memory at an address outside of the virtual address
+        space.
+    \item Memory access fail - satisfiable if bad memory access is performed,
+        such as unaligned memory access.
+
+    \item Simple if without else - satisfiable when the input satisfies the
+        condition of an if statement without an else block.
+    \item Simple if-else - satisfiable when the input satisfies the condition
+        of an if statement.
+    \item Simple if-else reverse - satisfiable if the input does not satisfy
+        condition of an if statement so that the body of the \texttt{else}
+        block is executed.
+
+    \item Nested if-else - satisfiable when body of an if statement inside of
+        another if statement is executed.
+    \item Nested if-else reverse - satisfiable when body of an if statement
+        inside of an else block is executed.
+
+    \item Recursive ackermann - satisfiable if ackermann function is computed
+        with a specific input.
+    \item Recursive fibonacci - satisfiable if fibonacci function is computed
+        with a specific input.
+    \item Recursive factorial fail - satisfiable if factorial function is
+        computed with a specific input.
+    \item Nested recursion fail - satisfiable if nested recursion is performed
+        with a specific input.
+
+    \item Return from loop - satisfiable if a loop exits with a return
+        statement, which happens with digit as the input.
+    \item Simple increasing loop - satisfiable if a loop is run exact number of
+        times, depending on the input value used in the loop condition which is
+        incremented in each iteration.
+    \item Simple decreasing loop - satisfiable if a loop is run exact number of
+        times, depending on the input value used in the loop condition which is
+        decremented in each iteration. 
+    \item Three level nested loop fail - satisfiable if a three level loops
+        that use loops using input as the condition run specific number of
+        times.
+    \item Two level nested loop - satisfiable if a two level nested loops that
+        use input as the condition run specific number of times.
+
+\end{itemize}
+
+Each of the examples is contained in separate source code file. We compiled
+each of the files both with \texttt{starc} and \texttt{gcc} compilers, and
+generated BTOR2 models with different combinations of code-word and memory-word
+sizes. The benchmark results of bounded model checking (with 200 as the upper
+bound) for each model are presented in the following two sections.
+
 \subsection{Results with binaries compiled with selfie}
+
+\begin{figure}[!h]
+    \includegraphics[width=\linewidth]{assets/benches/codeword_selfie_linear.png}
+    \centering
+    \caption{
+        Selfie compiled binaries - codeword size comparison
+    }
+    \label{fig:codeword_selfie_linear}
+\end{figure}
+
+\begin{figure}[!h]
+    \includegraphics[width=\linewidth]{assets/benches/codeword_selfie_log.png}
+    \centering
+    \caption{
+        Selfie compiled binaries - codeword size comparison (Log scale)
+    }
+    \label{fig:codeword_selfie_log}
+\end{figure}
+
+The time it took to solve BTOR2 models generated from binaries compiled with
+\texttt{starc} compiler in \texttt{selfie} are presented in figures
+\ref{fig:codeword_selfie_linear} and \ref{fig:codeword_selfie_log}. The solving
+terminated within 300 seconds for 9 models configured with code-word size of
+8-bits. In case of models with 32-bit code-word size, solving terminated for 10
+such models, and for 11 models with 64-bit code-word size. As for the
+configuration with 16-bit code-word size, solving terminated within 300 seconds
+for 12 models. This configuration terminated approximately in the average
+duration of all other models. However, solving terminated for more models with
+this configuration than with any other. This indicates that time complexity
+grows slower for models with 16-bit code-word size generated from
+\texttt{starc} compiled binaries. This is somewhat surprising, as
+\texttt{starc} compiled binaries contain only 32-bit RISC-V instructions.
+
+\begin{figure}[!h]
+    \includegraphics[width=\linewidth]{assets/benches/16b_codeword_memword_selfie_linear.png}
+    \centering
+    \caption{
+        Selfie compiled binaries - fixed 16-bit codeword with varying memory word size comparison
+    }
+    \label{fig:16b_codeword_memword_selfie_linear}
+\end{figure}
+
+\begin{figure}[!h]
+    \includegraphics[width=\linewidth]{assets/benches/16b_codeword_memword_selfie_log.png}
+    \centering
+    \caption{
+        Selfie compiled binaries - fixed 16-bit codeword with varying memory word size comparison (Log scale)
+    }
+    \label{fig:16b_codeword_memword_selfie_log}
+\end{figure}
+
+We proceeded with the 16-bit code-word size configuration, and generated models
+with varying memory-word sizes. Comparison of solving time for these models in
+figures \ref{fig:16b_codeword_memword_selfie_linear} and
+\ref{fig:16b_codeword_memword_selfie_log} show that the configuration with
+8-bit memory-word size terminated within 300 seconds for 15 models, 16-bit
+memory-word size for 13 models, 32-bit memory-word as well as 64-bit
+memory-word size configurations terminated for 13 models. The configuration
+with 8-bit memory-word size was solved in shortest amount of time for 6 models.
+This was the case for 4 models with 16-bit memory-word size configuration, 3
+models with 32-bit memory-word size and 2 models with 64-bit memory-word size
+configuration. Overall the model generated from \texttt{starc}-compiled
+binaries with configurations with smaller memory granularity terminated in
+shorter amount of tims.
 
 \subsection{Results with binaries compiled with gcc}
 
+The times it took for \texttt{btormc} to terminate for models with different 
+codeword-size configurations from binaries compiled with \texttt{gcc} are 
+presented in figures \ref{fig:codeword_gcc_linear} and
+\ref{fig:codeword_gcc_log}. The \texttt{btormc} terminated within 300 seconds
+for roughly half of the generated models. This was expected, because the models
+generated from binaries compiled with \texttt{gcc} are much bigger. The results
+can be better analyzed in the figure \ref{fig:codeword_gcc_log} with
+logarithmically scaled time axis. Relations between 8-bit and 16-bit codeword
+size configurations are similar to those between 32-bit and 64-bit codeword
+size. The models with 8-bit codeword size configurations were solved faster
+than those with 16-bit configurations in all but two cases. Similarly for
+32-bit and 64-bit codeword size configurations. However, in those cases where
+the models with smaller codeword memory granularity were solved faster, the
+difference in time is insignificant, approximately half of a second. But in
+cases where models with larger codeword size were solved faster, the time
+difference is bigger, around a second between 64-bit and 32-bit configurations
+and around 30-40 seconds between 16-bit and 8-bit configurations. Overall, the
+shortest time it took to solve the models was for configurations with 64-bit
+codeword size.
+
+\begin{figure}
+    \includegraphics[width=\linewidth]{assets/benches/codeword_gcc_linear.png}
+    \centering
+    \caption{
+        \texttt{gcc} compiled binaries - codeword size comparison
+    }
+    \label{fig:codeword_gcc_linear}
+\end{figure}
+
+\begin{figure}
+    \includegraphics[width=\linewidth]{assets/benches/codeword_gcc_log.png}
+    \centering
+    \caption{
+        \texttt{gcc} compiled binaries - codeword size comparison (Log scale)
+    }
+    \label{fig:codeword_gcc_log}
+\end{figure}
+
+\begin{figure}
+    \includegraphics[width=\linewidth]{assets/benches/64b_codeword_memword_gcc_linear.png}
+    \centering
+    \caption{
+        \texttt{gcc} compiled binaries - fixed 64-bit codeword, varying memory
+        word size comparison
+    }
+    \label{fig:64b_codeword_memword_gcc_linear}
+\end{figure}
+
+\begin{figure}
+    \includegraphics[width=\linewidth]{assets/benches/64b_codeword_memword_gcc_log.png}
+    \centering
+    \caption{
+        \texttt{gcc} compiled binaries - fixed 64-bit codeword, varying memory
+        word size comparison (Log scale)
+    }
+    \label{fig:64b_codeword_memword_gcc_log}
+\end{figure}
+
+As the models with 64-bit codeword size configuration were the ones that were
+overall solved the fastest, we proceeded with this configuration, generated
+models with varying memory-word sizes and obtained results shown in figures
+\ref{fig:64b_codeword_memword_gcc_linear} and
+\ref{fig:64b_codeword_memword_gcc_log}. \texttt{btormc} terminated for the same
+number of models. We can clearly see that the models configured with 64-bits
+for both codeword and memoryword sizes were solved in the shortest amount of
+time. The models with 32-bit memory-word size come closely in second place. In
+case of 8-bit and 16-bit memory-word size configurations, 8-bit configuration
+was solved faster in all but 2 cases. Overall, we observe that in case of
+\texttt{gcc} compiled binaries larger memory granularity seems to be more
+beneficial.
 
 \section{Conclusion and further work}
 
-\bigskip
+In this thesis, we discussed the importance and proving of program correctness.
+We explained shortly, how to model the problem of proving correctness by
+reducing the state reachability problem to the boolean satisfiability problem.
+We showed how to generate SMT-Formula from a program, and then further reduce
+it to a boolean formula by bit-blasting. Two new tools were presented,
+\texttt{rotor} used for BTOR2 model generation, and \texttt{peRISCope} for
+benchmarking orchestration of bounded model checking of generated models.
+Finally, we ran the BTOR Model Checker \texttt{btormc}, measured the time it
+took to solve the models generated from binaries compiled with \texttt{starc}
+and \texttt{gcc}, and briefly discussed the results we observed.
+
+The generated model configurations are not exhaustive. \texttt{rotor} supports
+more options, such as specifying the number of cores, how many bytes of input
+should be read and so on, and it can be extended to support even more options.
+More exhaustive benchmarking of every possible combination would provide more
+insight into the reasoning performance of RISC-V Software Models in BTOR2.
+
+% \bigskip
 
 %---------------------------------------------------------------------------------------------------------------------------------------
 %---------------------------------------------------------------------------------------------------------------------------------------

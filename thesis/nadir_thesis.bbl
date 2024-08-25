@@ -1,5 +1,5 @@
 % $ biblatex auxiliary file $
-% $ biblatex bbl format version 3.3 $
+% $ biblatex bbl format version 3.2 $
 % Do not modify the above lines!
 %
 % This is an auxiliary file used by the 'biblatex' package.
@@ -16,8 +16,247 @@
   {}
 \endgroup
 
-\datalist[entry]{nty/global//global/global/global}
-  \entry{horowitz1989art}{book}{}{}
+\datalist[entry]{nty/global//global/global}
+  \entry{abdulla2000symbolic}{inproceedings}{}
+    \name{author}{3}{}{%
+      {{hash=APA}{%
+         family={Abdulla},
+         familyi={A\bibinitperiod},
+         given={Parosh\bibnamedelima Aziz},
+         giveni={P\bibinitperiod\bibinitdelim A\bibinitperiod},
+      }}%
+      {{hash=BP}{%
+         family={Bjesse},
+         familyi={B\bibinitperiod},
+         given={Per},
+         giveni={P\bibinitperiod},
+      }}%
+      {{hash=EN}{%
+         family={E{\'e}n},
+         familyi={E\bibinitperiod},
+         given={Niklas},
+         giveni={N\bibinitperiod},
+      }}%
+    }
+    \list{organization}{1}{%
+      {Springer}%
+    }
+    \strng{namehash}{APABPEN1}
+    \strng{fullhash}{APABPEN1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{A}
+    \field{sortinithash}{A}
+    \field{booktitle}{International Conference on Tools and Algorithms for the
+  Construction and Analysis of Systems}
+    \field{pages}{411\bibrangedash 425}
+    \field{title}{Symbolic reachability analysis based on SAT-solvers}
+    \field{year}{2000}
+  \endentry
+
+  \entry{barrett2021satisfiability}{incollection}{}
+    \name{author}{4}{}{%
+      {{hash=BC}{%
+         family={Barrett},
+         familyi={B\bibinitperiod},
+         given={Clark},
+         giveni={C\bibinitperiod},
+      }}%
+      {{hash=SR}{%
+         family={Sebastiani},
+         familyi={S\bibinitperiod},
+         given={Roberto},
+         giveni={R\bibinitperiod},
+      }}%
+      {{hash=SSA}{%
+         family={Seshia},
+         familyi={S\bibinitperiod},
+         given={Sanjit\bibnamedelima A},
+         giveni={S\bibinitperiod\bibinitdelim A\bibinitperiod},
+      }}%
+      {{hash=TC}{%
+         family={Tinelli},
+         familyi={T\bibinitperiod},
+         given={Cesare},
+         giveni={C\bibinitperiod},
+      }}%
+    }
+    \list{publisher}{1}{%
+      {IOS Press}%
+    }
+    \strng{namehash}{BC+1}
+    \strng{fullhash}{BCSRSSATC1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{B}
+    \field{sortinithash}{B}
+    \field{booktitle}{Handbook of satisfiability}
+    \field{pages}{1267\bibrangedash 1329}
+    \field{title}{Satisfiability modulo theories}
+    \field{year}{2021}
+  \endentry
+
+  \entry{brummayer2008btor}{inproceedings}{}
+    \name{author}{3}{}{%
+      {{hash=BR}{%
+         family={Brummayer},
+         familyi={B\bibinitperiod},
+         given={Robert},
+         giveni={R\bibinitperiod},
+      }}%
+      {{hash=BA}{%
+         family={Biere},
+         familyi={B\bibinitperiod},
+         given={Armin},
+         giveni={A\bibinitperiod},
+      }}%
+      {{hash=LF}{%
+         family={Lonsing},
+         familyi={L\bibinitperiod},
+         given={Florian},
+         giveni={F\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{BRBALF1}
+    \strng{fullhash}{BRBALF1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{B}
+    \field{sortinithash}{B}
+    \field{booktitle}{Proceedings of the joint workshops of the 6th
+  international workshop on satisfiability modulo theories and 1st
+  international workshop on bit-precise reasoning}
+    \field{pages}{33\bibrangedash 38}
+    \field{title}{BTOR: bit-precise modelling of word-level problems for model
+  checking}
+    \field{year}{2008}
+  \endentry
+
+  \entry{de2009satisfiability}{inproceedings}{}
+    \name{author}{2}{}{%
+      {{hash=DML}{%
+         family={De\bibnamedelima Moura},
+         familyi={D\bibinitperiod\bibinitdelim M\bibinitperiod},
+         given={Leonardo},
+         giveni={L\bibinitperiod},
+      }}%
+      {{hash=BN}{%
+         family={Bj{\o}rner},
+         familyi={B\bibinitperiod},
+         given={Nikolaj},
+         giveni={N\bibinitperiod},
+      }}%
+    }
+    \list{organization}{1}{%
+      {Springer}%
+    }
+    \strng{namehash}{DMLBN1}
+    \strng{fullhash}{DMLBN1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{D}
+    \field{sortinithash}{D}
+    \field{booktitle}{Brazilian Symposium on Formal Methods}
+    \field{pages}{23\bibrangedash 36}
+    \field{title}{Satisfiability modulo theories: An appetizer}
+    \field{year}{2009}
+  \endentry
+
+  \entry{dunlop1982comparative}{article}{}
+    \name{author}{2}{}{%
+      {{hash=DDD}{%
+         family={Dunlop},
+         familyi={D\bibinitperiod},
+         given={Douglas\bibnamedelima D},
+         giveni={D\bibinitperiod\bibinitdelim D\bibinitperiod},
+      }}%
+      {{hash=BVR}{%
+         family={Basili},
+         familyi={B\bibinitperiod},
+         given={Victor\bibnamedelima R},
+         giveni={V\bibinitperiod\bibinitdelim R\bibinitperiod},
+      }}%
+    }
+    \list{publisher}{1}{%
+      {ACM New York, NY, USA}%
+    }
+    \strng{namehash}{DDDBVR1}
+    \strng{fullhash}{DDDBVR1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{D}
+    \field{sortinithash}{D}
+    \field{number}{2}
+    \field{pages}{229\bibrangedash 244}
+    \field{title}{A comparative analysis of functional correctness}
+    \field{volume}{14}
+    \field{journaltitle}{ACM Computing Surveys (CSUR)}
+    \field{year}{1982}
+  \endentry
+
+  \entry{Fejzic_peRISCope}{software}{}
+    \name{author}{1}{}{%
+      {{hash=FN}{%
+         family={Fejzić},
+         familyi={F\bibinitperiod},
+         given={Nadir},
+         giveni={N\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{FN1}
+    \strng{fullhash}{FN1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{F}
+    \field{sortinithash}{F}
+    \field{title}{{peRISCope}}
+    \verb{url}
+    \verb https://github.com/nfejzic/periscope
+    \endverb
+  \endentry
+
+  \entry{flynn2007computer}{article}{}
+    \name{author}{1}{}{%
+      {{hash=FM}{%
+         family={Flynn},
+         familyi={F\bibinitperiod},
+         given={Michael},
+         giveni={M\bibinitperiod},
+      }}%
+    }
+    \list{publisher}{1}{%
+      {Wiley Online Library}%
+    }
+    \strng{namehash}{FM1}
+    \strng{fullhash}{FM1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{F}
+    \field{sortinithash}{F}
+    \field{title}{Computer architecture}
+    \field{journaltitle}{Wiley Encyclopedia of Computer Science and
+  Engineering}
+    \field{year}{2007}
+  \endentry
+
+  \entry{gnu:coreutils}{software}{}
+    \list{organization}{1}{%
+      {Free Software Foundation}%
+    }
+    \field{labeltitlesource}{title}
+    \field{sortinit}{G}
+    \field{sortinithash}{G}
+    \field{title}{GNU Coreutils}
+    \verb{url}
+    \verb https://www.gnu.org/software/coreutils/
+    \endverb
+    \field{version}{9.0}
+    \field{day}{25}
+    \field{month}{08}
+    \field{year}{2024}
+  \endentry
+
+  \entry{horowitz1989art}{book}{}
     \name{author}{3}{}{%
       {{hash=HP}{%
          family={Horowitz},
@@ -52,7 +291,28 @@
     \field{year}{1989}
   \endentry
 
-  \entry{gh:rotor}{misc}{}{}
+  \entry{riscv_gnu}{software}{}
+    \name{author}{1}{}{%
+      {{hash=IRV}{%
+         family={International},
+         familyi={I\bibinitperiod},
+         given={RISC-V},
+         giveni={R\bibinithyphendelim V\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{IRV1}
+    \strng{fullhash}{IRV1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{I}
+    \field{sortinithash}{I}
+    \field{title}{{RISC-V GNU Compiler Toolchain}}
+    \verb{url}
+    \verb https://github.com/riscv-collab/riscv-gnu-toolchain
+    \endverb
+  \endentry
+
+  \entry{gh:rotor}{software}{}
     \name{author}{1}{}{%
       {{hash=KC}{%
          family={Kirsch},
@@ -67,15 +327,15 @@
     \field{labeltitlesource}{title}
     \field{sortinit}{K}
     \field{sortinithash}{K}
-    \field{title}{selfie}
+    \field{title}{{selfie}}
     \verb{url}
-    \verb http://selfie.cs.uni-salzburg.at/
+    \verb https://github.com/cksystemsteaching/selfie
     \endverb
     \field{month}{08}
     \field{year}{2024}
   \endentry
 
-  \entry{DBLP:journals/jsat/NiemetzPB14}{article}{}{}
+  \entry{DBLP:journals/jsat/NiemetzPB14}{article}{}
     \name{author}{3}{}{%
       {{hash=NA}{%
          family={Niemetz},
@@ -116,7 +376,7 @@
     \field{year}{2014}
   \endentry
 
-  \entry{btor2}{inproceedings}{}{}
+  \entry{btor2}{inproceedings}{}
     \name{author}{4}{}{%
       {{hash=NA}{%
          family={Niemetz},
@@ -158,7 +418,29 @@
     \field{year}{2018}
   \endentry
 
-  \entry{Peter_hyperfine_2023}{software}{}{}
+  \entry{page2009practical}{book}{}
+    \name{author}{1}{}{%
+      {{hash=PD}{%
+         family={Page},
+         familyi={P\bibinitperiod},
+         given={Daniel},
+         giveni={D\bibinitperiod},
+      }}%
+    }
+    \list{publisher}{1}{%
+      {Springer Science \& Business Media}%
+    }
+    \strng{namehash}{PD1}
+    \strng{fullhash}{PD1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{P}
+    \field{sortinithash}{P}
+    \field{title}{A practical introduction to computer architecture}
+    \field{year}{2009}
+  \endentry
+
+  \entry{Peter_hyperfine_2023}{software}{}
     \name{author}{1}{}{%
       {{hash=PD}{%
          family={Peter},
@@ -167,8 +449,8 @@
          giveni={D\bibinitperiod},
       }}%
     }
-    \strng{namehash}{PD1}
-    \strng{fullhash}{PD1}
+    \strng{namehash}{PD2}
+    \strng{fullhash}{PD2}
     \field{labelnamesource}{author}
     \field{labeltitlesource}{title}
     \field{sortinit}{P}
