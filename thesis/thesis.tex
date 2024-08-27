@@ -305,10 +305,10 @@ our program has a single 8-bit integer as its input, we would have to test it
 with $2^{8}$ different inputs. For each bit added to the input, regardless
 if as an additional input or as an additional bit to the existing input, we
 double the number of tests. Testing with such large input space is not feasible
-for most of programs.
+for most programs.
 
-Better approach is to prove that our program is correct for any given input. In
-other words, we want to prove that given an input, the program reaches a
+A better approach is to prove that our program is correct for any given input.
+In other words, we want to prove that given an input, the program reaches a
 specific state \cite{dunlop1982comparative}. What we're interested in, is
 whether an input for the given program exists, such that a machine reaches a
 certain state while it executes that program. This is known as the state
@@ -433,7 +433,7 @@ decoders, multiplexers and demultiplexers. Decoders have an N-bit address as
 input which is decoded and used to activate one of $2^N$ possible outputs.
 Multiplexer has $2^N$ inputs, one of which is selected based on the output
 produced by the decoder given an N-bit address. Analog, demultiplexer has one
-input which is routed to one of $2^N$ outputs based on the address.
+input which is routed to one of $2^N$ outputs based on the address
 \cite{horowitz1989art}. Circuit logic of these components can be modelled as
 boolean formulae as well, effectively modelling memory access of the machine.
 Number of inputs for multiplexer (or outputs for demultiplexer) multiplied by
@@ -448,7 +448,7 @@ which increases complexity in all of the mentioned components.
 \begin{figure}
     \includegraphics[width=\linewidth]{assets/64_bit_instruction_load.png}
     \centering
-    \caption{Loading 32-bit instruction from memory with 64-bit granularity.}
+    \caption{Loading 32-bit instruction \cite{waterman2014risc} from memory with 64-bit granularity.}
     \label{fig:instruction_load_example}
 \end{figure}
 
@@ -501,34 +501,35 @@ a sort id for a sort definition, or node id for a node definition. Nodes in
 BTOR2 can define operations such as addition, multiplication etc., or they can
 be variable declaration, memory access, constraints and so on \cite{btor2}.
 
-In listing \ref{lst:btor2_example} we can see an example of model in BTOR2. In
-first two lines we define two sorts, one is a 1-bit bit-vector with sort id
-$1$, and the other is a 32-bit bit-vector with sort id $2$. In the following line
-we have a node with node id $3$ that defines an input variable \texttt{turn} of
-sort with sort id $1$, meaning that \texttt{turn} is a 1-bit bit-vector. In the
-next line we define a constant $0$ of sort with sort id $2$. In next two lines
-we define two 32-bit bit-vector state variables \texttt{a} and \texttt{b}, and
-then initialize them with previously defined constant $0$. We then define a
-constant $1$, which we use to increment the state variables. We can observe
-that most of the keywords first reference a sort id. The referenced sort id is
-the type of the node, and the node itself evaluates to a certain value that we
-can reference by the node's id. In nodes $12$ and $13$, we use an if-then-else
-construct, where we evaluate to a certain value based on the condition. For
-state variable \texttt{a} we check whether the value of node $3$ is $1$
-($true$), and if it is, the node $12$ evaluates to value of node $5$, otherwise
-it evaluates to the value of node $10$. For state variable \texttt{b} we check
-whether the value of node $3$ is false ($-3$ negates the value of node $3$),
-and if so we use the value of node $6$, otherwise value of node $11$. Since
-nodes $5$ and $6$ are definitions of state variables, using them means using
-whatever the current value of the variable is. In nodes $14$ and $15$ we define
-the next function, which is the function that updates the state variables, and
-these functions use the previously defined if-then-else nodes for the update.
-In next few lines we define a 32-bit bit-vector constant $3$, we have two nodes
-that check whether our state variables have value $3$. If both of them have
-value $3$, the node $19$ evaluates to $1$ (true), and in node $20$ we define a
-bad state. The node $20$ simply means, if the value of node $19$ is $1$, then
-this bad state is reached. In listing \ref{lst:c_code} we can see the
-corresponding \texttt{C} code for the BTOR2 model.
+In listing \ref{lst:btor2_example} we can see an example of a model in BTOR2.
+In first two lines we define two sorts, one is a 1-bit bit-vector with sort id
+$1$, and the other is a 32-bit bit-vector with sort id $2$. In the following
+line we have a node with node id $3$ that defines an input variable
+\texttt{turn} of sort with sort id $1$, meaning that \texttt{turn} is a 1-bit
+bit-vector. In the next line we define a constant $0$ of sort with sort id $2$.
+In next two lines we define two 32-bit bit-vector state variables \texttt{a}
+and \texttt{b}, and then initialize them with previously defined constant $0$.
+We then define a constant $1$, which we use to increment the state variables.
+We can observe that most of the keywords first reference a sort id. The
+referenced sort id is the type of the node, and the node itself evaluates to a
+certain value that we can reference by the node's id. In nodes $12$ and $13$,
+we use an if-then-else construct, where we evaluate to a certain value based on
+the condition. For state variable \texttt{a} we check whether the value of node
+$3$ is $1$ ($true$), and if it is, the node $12$ evaluates to value of node
+$5$, otherwise it evaluates to the value of node $10$. For state variable
+\texttt{b} we check whether the value of node $3$ is false ($-3$ negates the
+value of node $3$), and if so we use the value of node $6$, otherwise value of
+node $11$. Since nodes $5$ and $6$ are definitions of state variables, using
+them means using whatever the current value of the variable is. In nodes $14$
+and $15$ we define the next function, which is the function that updates the
+state variables, and these functions use the previously defined if-then-else
+nodes for the update. In the next few lines we define a 32-bit bit-vector
+constant $3$, we have two nodes that check whether our state variables have
+value $3$. If both of them have value $3$, the node $19$ evaluates to $1$
+(true), and in node $20$ we define a bad state. The node $20$ simply means, if
+the value of node $19$ is $1$, then this bad state is reached. In listing
+\ref{lst:c_code} we can see the corresponding \texttt{C} code for the BTOR2
+model.
 
 \begin{lstlisting}[label=lst:btor2_example, caption={Example BTOR2 model for \texttt{C} code in listing \ref{lst:c_code}},captionpos=b]
 1 sort bitvec 1
@@ -576,12 +577,12 @@ int main(void) {
 The BTOR2 format encodes the SMT-Formula. To solve the formula, we use a set of
 tools that acompany the BTOR2 format available as part of the Boolector project
 \cite{DBLP:journals/jsat/NiemetzPB14}. In particular, we use the reference
-implementation of a bounded model checker \texttt{btormc}. The bit-blasting of 
+implementation of a bounded model checker \texttt{btormc}. The bit-blasting of
 SMT-Formula is performed by the \texttt{btormc} before solving it. We run the
 model checker by providing it the file containing BTOR2 model, and optionally
 the upper bound. Upper bound option sets the maximal number of instructions
 that can be checked. If the model checker terminates with no output, that means
-that our program is does not satisfy the given constraints in the number of
+that our program does not satisfy the given constraints in the number of
 instructions we chose as the upper bound. On the other hand, if the program
 satisfies the constraints, a witness format is produced. We can see an example
 output of witness format in listing \ref{lst:btor_witness}.
@@ -618,7 +619,7 @@ satisfied.
 
 Generating BTOR2 models for programs is not done by hand. That would be tedious
 and error prone, as models tend to be very large counting tens of thousands of
-lines. Instead, we use tool capable of generating BTOR2 models. Specifically,
+lines. Instead, we use a tool capable of generating BTOR2 models. Specifically,
 we use \texttt{rotor}, which is a self-translating modeling engine based on
 \texttt{selfie} that translates full RISC-V code including all of
 \texttt{selfie} and itself to BTOR2 and SMT-LIB formulae that are satisfiable
@@ -631,8 +632,8 @@ memory segments. Rotor also generates models that enable RISC-V code synthesis
 
 \texttt{rotor} accepts multiple arguments and parameters that can be used to
 adjust produced models. By default multiple checks are enabled in
-\texttt{rotor}, and we have to explicitely disable them using following command
-line arguments:
+\texttt{rotor}, and we have to explicitely disable them using the following
+command line arguments:
 
 \begin{itemize}
     \item \texttt{-Pnobadexitcode} - Disables check for bad exit code. Without
@@ -702,14 +703,14 @@ transitions of inputs through frames that satisfy said property.
 timeout for maximum duration of model solving, list of files for filtering, and
 flags for \texttt{btormc}. The \texttt{peRISCope} performs multiple runs,
 each time invoking \texttt{rotor} with parameters of that run which results in
-multiple models being generated in (specific) subdirectory inside
+multiple models being generated in a (specific) subdirectory inside
 \texttt{selfie}. Model generation is fast, so we can generate models for all
 example files without filtering. After the models are generated,
 \texttt{btormc} is run on each model multiple times using \texttt{hyperfine}
-\cite{Peter_hyperfine_2023}, measuring the time it took each time. In example
-configuration file shown in listing \ref{lst:periscope_config} we tell the
-\texttt{peRISCope} to generate models with different code memory granularity
-and to benchmark only models that match any of the entries in the
+\cite{Peter_hyperfine_2023}, measuring the time it took each time. In the
+example configuration file shown in listing \ref{lst:periscope_config} we tell
+the \texttt{peRISCope} to generate models with different code memory
+granularity and to benchmark only models that match any of the entries in the
 \texttt{files} list. The \texttt{timeout} parameter sets the maximum number of
 seconds solving is allowed to take.
 
@@ -776,15 +777,15 @@ very last frame.
 The second command of \texttt{peRISCope} is the \texttt{bench} command. This
 command orchestrates the execution of multiple different commands. First, it 
 runs the \texttt{rotor} generating models with specific configuration. Then it
-runs the \texttt{hyperfine} executing \texttt{btormc} on each model, collecting
+runs \texttt{hyperfine} executing \texttt{btormc} on each model, collecting
 benchmarking statistics. \texttt{btormc} may run very long for certain models,
-so if the \texttt{timeout} option is set in used configuration, we wrap the 
-invokation in \texttt{timeout} command of GNU coreutils \cite{gnu:coreutils}.
-We mark the result as \texttt{Failed} if we use \texttt{timeout} and the model
-solving does not terminate within the specified time. Otherwise, witness format
-is generated, parsed alongside the provided BTOR2 model for context. The result
-of the whole run is then stored in a results file, example of which can be seen
-in listing \ref{lst:results_file}.
+so if the \texttt{timeout} option is set in the used configuration, we wrap the
+invokation in the \texttt{timeout} command of GNU coreutils
+\cite{gnu:coreutils}. We mark the result as \texttt{Failed} if we use
+\texttt{timeout} and the model solving does not terminate within the specified
+time. Otherwise, witness format is generated, parsed alongside the provided
+BTOR2 model for context. The result of the whole run is then stored in a
+results file, example of which can be seen in listing \ref{lst:results_file}.
 
 The results are stored in \texttt{JSON} format, with one entry per BTOR2 model
 file. The \texttt{Success} key indicates that \texttt{btormc} terminated, and
@@ -799,8 +800,8 @@ it took solving it.
 Accompanying the \texttt{peRISCope} binary, we also have a script written in
 Python. The script takes the results file as input and generates plots for
 easier visual inspection of the results. The script supports different types of
-plots, such as box plots and histograms. Linear and log scaling of plots is
-available. In figure \ref{fig:results_plot} is one such plot.
+plots, such as box plots and histograms. Linear and log scaling of plots are
+available. Figure \ref{fig:results_plot} is one such plot.
 
 \begin{figure}
     \includegraphics[width=\linewidth]{assets/plot_example.png}
@@ -924,11 +925,10 @@ following examples:
     \item Simple decreasing loop - satisfiable if a loop is run exact number of
         times, depending on the input value used in the loop condition which is
         decremented in each iteration. 
-    \item Three level nested loop fail - satisfiable if a three level loops
-        that use loops using input as the condition run specific number of
-        times.
-    \item Two level nested loop - satisfiable if a two level nested loops that
-        use input as the condition run specific number of times.
+    \item Three level nested loop fail - satisfiable if three nested loops that
+        use input in their condition run specific number of times.
+    \item Two level nested loop - satisfiable if two nested loops that use
+        input in their condition run specific number of times.
 
 \end{itemize}
 
@@ -998,11 +998,11 @@ figures \ref{fig:16b_codeword_memword_selfie_linear} and
 memory-word size for 13 models, 32-bit memory-word as well as 64-bit
 memory-word size configurations terminated for 13 models. The configuration
 with 8-bit memory-word size was solved in shortest amount of time for 6 models.
-This was the case for 4 models with 16-bit memory-word size configuration, 3
-models with 32-bit memory-word size and 2 models with 64-bit memory-word size
-configuration. Overall the model generated from \texttt{starc}-compiled
-binaries with configurations with smaller memory granularity terminated in
-shorter amount of tims.
+16-bit memory-word size configuration was solved in shortest amount of time for
+4 models, 32-bit memory-word size configuration for 3 models and 64-bit
+memory-word size configuration for 2 models. Overall models generated from
+\texttt{starc}-compiled binaries with smaller memory granularity configurations
+terminated in shorter amount of tims.
 
 \subsection{Results with binaries compiled with gcc}
 
@@ -1088,7 +1088,15 @@ it to a boolean formula by bit-blasting. Two new tools were presented,
 benchmarking orchestration of bounded model checking of generated models.
 Finally, we ran the BTOR Model Checker \texttt{btormc}, measured the time it
 took to solve the models generated from binaries compiled with \texttt{starc}
-and \texttt{gcc}, and briefly discussed the results we observed.
+and \texttt{gcc}, and briefly discussed the results we observed. The results
+indicate that solving of models generated from binaries compiled by
+\texttt{starc} is faster for configurations with smaller code and non-code
+memory granularity. In case of \texttt{gcc} compiled binaries, solving was
+faster for models with largest code and non-code memory granularity. This might
+be due to multiple reasons, such as the size of models, but also potential
+optimizations implemented by \texttt{gcc} for 64-bit RISC-V architecture.
+Future experiments could investigate the correlation between compiler
+optimizations and the solving time.
 
 The generated model configurations are not exhaustive. \texttt{rotor} supports
 more options, such as specifying the number of cores, how many bytes of input
