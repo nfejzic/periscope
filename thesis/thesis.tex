@@ -200,17 +200,32 @@ Univ.-Prof. Dipl.-Inform. Dr.-Ing. Christoph Kirsch
 % \fontsize{12}{12}\selectfont
 
 \abstract{When working with software programs, we often want to ensure that
-they uphold certain invariants. There are various techniques for this, such as
-testing. However, testing is not exhaustive. Instead, we can formulate the
-problem of program correctness as the state reachability problem and reduce it
-to the boolean satisfiability problem. This reduction is done by encoding the
-program as a sequence of boolean formulae - known as the model, and solving the
-satisfiability of the resulting formula. Solving this problem is
-computationally expensive, as it is NP-Complete. In this thesis, we explore how
-different parameters of the generated models affect the performance of SAT
-solvers. In particular we present a benchmarking toolbox, as well as benchmark
-results of times it took to solve models with different memory granularity
-parameters.}
+they uphold certain invariants. Various techniques exist for this purpose, such
+as testing. However, testing requires running the program with every possible
+input, which is often not practical. What interests us in particular, is the
+question of whether an input exists such that our program lands in a specific
+state. This is known as the state reachability problem, which can be reduced to
+the boolean satisfiability problem. The reduction can be done by encoding the
+sequence of machine instructions in the program as a satisfiability formula in
+the theory of bit-vectors, known as a Satisfiability Modulo Theory (SMT)
+formula. The resulting formula encodes the program's behaviour and constraints
+we want to check as a model in a special language called BTOR2. Bit-vectors
+represent signed and unsigned integers of fixed bit-length. We can replace
+instructions over bit-vectors with boolean formulae equivalent to their logical
+circuits in hardware. Such reduction is called bit-blasting and the result is a
+boolean formula. We can then run a SAT-solver on resulting boolean formula,
+which will tell us whether the program satisfies the given constraints.
+Effectively, we reduced the problem of program correctness to the
+satisfiability problem. Important to mention is that only a finite number of
+instructions can be transformed this way, which makes the model checking
+bounded in number of instructions.
+
+Since the program correctness is reduced to satisfiability problem, proving it
+is an NP-Complete problem and is computationally expensive. However, model
+generation is fast and we can generate equivalent models with different
+configurations. In this thesis, we present a toolbox for easier benchmarking of
+model configurations, and we present results from benchmarking of solving time 
+for models with different memory granularity configurations.
 
 % \vspace*{\fill}
 
