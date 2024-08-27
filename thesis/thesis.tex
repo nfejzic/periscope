@@ -199,33 +199,42 @@ Univ.-Prof. Dipl.-Inform. Dr.-Ing. Christoph Kirsch
 %\onehalfspacing
 % \fontsize{12}{12}\selectfont
 
-\abstract{When working with software programs, we often want to ensure that
-they uphold certain invariants. Various techniques exist for this purpose, such
-as testing. However, testing requires running the program with every possible
-input, which is often not practical. What interests us in particular, is the
-question of whether an input exists such that our program lands in a specific
-state. This is known as the state reachability problem, which can be reduced to
-the boolean satisfiability problem. The reduction can be done by encoding the
-sequence of machine instructions in the program as a satisfiability formula in
-the theory of bit-vectors, known as a Satisfiability Modulo Theory (SMT)
-formula. The resulting formula encodes the program's behaviour and constraints
-we want to check as a model in a special language called BTOR2. Bit-vectors
-represent signed and unsigned integers of fixed bit-length. We can replace
-instructions over bit-vectors with boolean formulae equivalent to their logical
-circuits in hardware. Such reduction is called bit-blasting and the result is a
-boolean formula. We can then run a SAT-solver on resulting boolean formula,
-which will tell us whether the program satisfies the given constraints.
-Effectively, we reduced the problem of program correctness to the
-satisfiability problem. Important to mention is that only a finite number of
-instructions can be transformed this way, which makes the model checking
-bounded in number of instructions.
-
-Since the program correctness is reduced to satisfiability problem, proving it
-is an NP-Complete problem and is computationally expensive. However, model
-generation is fast and we can generate equivalent models with different
-configurations. In this thesis, we present a toolbox for easier benchmarking of
-model configurations, and we present results from benchmarking of solving time 
-for models with different memory granularity configurations.
+\abstract{
+    % What is it about, and why is it important?
+    When working with software programs, we often want to ensure that they
+    uphold certain invariants. Various techniques exist for this purpose, such
+    as testing. However, testing requires running the program with every
+    possible input, which is often not practical. Most often we want to check
+    whether an input exists such that our program reaches a specific state.
+    This is known as the state reachability problem, which can be reduced to
+    the boolean satisfiability problem and solved by SAT-solvers.
+    % How did we do it?
+    The reduction can be done by encoding the sequence of machine instructions
+    in the program as a satisfiability formula in the theory of bit-vectors,
+    known as a Satisfiability Modulo Theory (SMT) formula. The resulting
+    formula is the model of our program and it encodes its behaviour and
+    constraints we want to check in a language designed for this purpose called
+    BTOR2. Bit-vectors represent signed and unsigned integers of fixed
+    bit-length. SAT-solvers can solve boolean formulae, so we must reduce
+    SMT-formulae with bit-vectors to equivalent boolean logic formulae by
+    technique called bit-blasting. We can then run a SAT-solver on resulting
+    boolean formula, which will tell us whether the program satisfies the given
+    constraints. Effectively, we reduced the problem of program correctness to
+    the satisfiability problem. Important to notice is that only a finite
+    number of instructions can be transformed this way, which makes the model
+    checking bounded in number of executed instructions.
+    % Why is our finding important?
+    As we reduced the program correctness problem to satisfiability problem,
+    proving it is NP-Complete and is computationally expensive. However, model
+    generation is linear in the size of the model. We took advantage of this
+    fact and generated many equivalent models to analyze impact of different
+    configurations on solving performance of \texttt{btormc} model checker.
+    % What did we create and find?
+    In this thesis, we present a toolbox for easy benchmarking of different
+    model configurations. We also present and analyze results from benchmarking
+    of solving time for models with different code and non-code memory
+    granularity configurations.
+}
 
 % \vspace*{\fill}
 
