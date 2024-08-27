@@ -10,3 +10,4 @@ periscope-rs/**/*.json
 **/*.wit
 **/*.bwit
 **/*.btor2
+**/.periscope
