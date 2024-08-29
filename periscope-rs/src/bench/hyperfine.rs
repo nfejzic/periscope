@@ -8,6 +8,7 @@ pub struct Hyperfine {
     pub results: Vec<HyperfineResult>,
 }
 
+/// Results from a single run of `hyperfine`.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct HyperfineResult {
     pub command: String,
@@ -22,6 +23,7 @@ pub struct HyperfineResult {
     pub exit_codes: Vec<i32>,
 }
 
+/// Run `hyperfine` on a `btormc` and return the parsed results.
 pub fn run(
     path: impl AsRef<Path>,
     hyperfine_output: impl AsRef<Path>,

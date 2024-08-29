@@ -1,5 +1,13 @@
 use std::{path::Path, process::Command};
 
+/// Run rotor in the provided selfie directory. Make sure that the following make targets exist:
+/// * `clean`
+/// * `rotor-symbolic`
+///
+/// Other make targets can be run by providing the corresponding CLI flag. [Commands::Bench] for more
+/// information.
+///
+/// [Commands::Bench]: crate::Commands::Bench
 pub fn run_rotor(
     selfie_dir: &Path,
     rotor_args: &str,

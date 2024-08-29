@@ -57,6 +57,8 @@ fn main() -> anyhow::Result<()> {
     Ok(())
 }
 
+/// Reads and deserializes the configuration file for benchmarking. If no file is provided, default
+/// configuration values are used.
 fn prepare_bench_config(
     run_rotor: bool,
     filter_files: Vec<String>,
@@ -78,7 +80,7 @@ fn prepare_bench_config(
                     Some("yaml") => {
                         serde_yaml::from_reader(file).context("Config has invalid YAML format.")
                     }
-                    _ => anyhow::bail!("Config file can be in JSON or YAML format."),
+                    _ => anyhow::bail!("Config file must be in JSON or YAML format."),
                 }
             })
             .transpose()?
