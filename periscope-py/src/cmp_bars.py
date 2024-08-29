@@ -106,13 +106,17 @@ def plot_cmp_bars(
     if args.scale == "log":
         ax2.set_yscale("log")
         plt.title(
-            "Comparison of median times with different model configurations (Log scale)"
+            "Comparison of median times with different model configurations (Log scale)",
         )
 
     plt.ylabel("Time [s]")
 
     labels = list(per_file.keys())
-    plt.xticks(list(range(0, len(labels))), labels, rotation=65)
+    label_positions = np.arange(len(labels)) - 0.1
+    plt.tick_params(axis="x", length=20)
+    plt.xticks(list(label_positions), labels, rotation=55, ha="right")
+
+    # label_positions = list()
 
     for idx, file in enumerate(per_file.values()):
         for bench_idx, bench_name in enumerate(file.values()):
@@ -121,7 +125,11 @@ def plot_cmp_bars(
             color = colors[bench_idx]
             ax = plt.bar(x=idx + offs, height=time, width=bar_w, color=color)
             handles.append(ax)
+            # label_positions.append(idx + offs)
+
+    # plt.xticks(label_positions, labels, rotation=0)
 
     plt.ylim(0.1, 300)
-    legend = list(map(lambda x: x.removesuffix(".json").replace("-", " "), legend))
+    legend = list(map(lambda x: x.removesuffix(
+        ".json").replace("-", " "), legend))
     plt.legend(handles=handles, labels=legend)

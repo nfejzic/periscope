@@ -1,0 +1,346 @@
+{
+  "simple-if-without-else-1-35-rotorized.btor2": {
+    "Success": {
+      "props": [
+        {
+          "kind": "Bad",
+          "name": "core-0-bad-exit-code",
+          "node": 320003,
+          "idx": 6
+        }
+      ],
+      "steps": 824,
+      "hyperfine": {
+        "results": [
+          {
+            "command": "timeout --foreground 300s btormc ../selfie/examples/symbolic/simple-if-without-else-1-35-rotorized.btor2 -kmax 3000",
+            "mean": 3.0083107679200003,
+            "stddev": 0.05313234420420066,
+            "median": 3.00390229312,
+            "user": 2.83951502,
+            "system": 0.1675767,
+            "min": 2.94111596112,
+            "max": 3.07789741212,
+            "times": [
+              2.94111596112,
+              3.00390229312,
+              2.97838954712,
+              3.04024862612,
+              3.07789741212
+            ],
+            "exit_codes": [
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        ]
+      },
+      "wc_raw": 3893953,
+      "wc_btormc_dump": 227921
+    }
+  },
+  "memory-access-fail-1-35-rotorized.btor2": {
+    "Success": {
+      "props": [
+        {
+          "kind": "Bad",
+          "name": "core-0-unknown-syscall-ID",
+          "node": 310010,
+          "idx": 5
+        }
+      ],
+      "steps": 710,
+      "hyperfine": {
+        "results": [
+          {
+            "command": "timeout --foreground 300s btormc ../selfie/examples/symbolic/memory-access-fail-1-35-rotorized.btor2 -kmax 3000",
+            "mean": 2.58331557584,
+            "stddev": 0.034795034439438,
+            "median": 2.58375930524,
+            "user": 2.433737939999999,
+            "system": 0.14487383999999998,
+            "min": 2.52933737224,
+            "max": 2.62034716924,
+            "times": [
+              2.52933737224,
+              2.58375930524,
+              2.62034716924,
+              2.60608291924,
+              2.57705111324
+            ],
+            "exit_codes": [
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        ]
+      },
+      "wc_raw": 3903452,
+      "wc_btormc_dump": 232508
+    }
+  },
+  "simple-assignment-1-35-rotorized.btor2": {
+    "Success": {
+      "props": [
+        {
+          "kind": "Bad",
+          "name": "core-0-bad-exit-code",
+          "node": 320003,
+          "idx": 6
+        }
+      ],
+      "steps": 824,
+      "hyperfine": {
+        "results": [
+          {
+            "command": "timeout --foreground 300s btormc ../selfie/examples/symbolic/simple-assignment-1-35-rotorized.btor2 -kmax 3000",
+            "mean": 2.93403681468,
+            "stddev": 0.02566095826737744,
+            "median": 2.94481652088,
+            "user": 2.76575092,
+            "system": 0.16802704000000002,
+            "min": 2.89634084888,
+            "max": 2.96156827588,
+            "times": [
+              2.92071805288,
+              2.94481652088,
+              2.96156827588,
+              2.9467403748799996,
+              2.89634084888
+            ],
+            "exit_codes": [
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        ]
+      },
+      "wc_raw": 3882068,
+      "wc_btormc_dump": 227749
+    }
+  },
+  "simple-if-else-reverse-1-35-rotorized.btor2": {
+    "Success": {
+      "props": [
+        {
+          "kind": "Bad",
+          "name": "core-0-bad-exit-code",
+          "node": 320003,
+          "idx": 6
+        }
+      ],
+      "steps": 824,
+      "hyperfine": {
+        "results": [
+          {
+            "command": "timeout --foreground 300s btormc ../selfie/examples/symbolic/simple-if-else-reverse-1-35-rotorized.btor2 -kmax 3000",
+            "mean": 2.98829150302,
+            "stddev": 0.046932660811443754,
+            "median": 2.96614286502,
+            "user": 2.8204876,
+            "system": 0.16512538,
+            "min": 2.94386796102,
+            "max": 3.04913956002,
+            "times": [
+              3.04913956002,
+              2.95490569202,
+              2.94386796102,
+              3.02740143702,
+              2.96614286502
+            ],
+            "exit_codes": [
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        ]
+      },
+      "wc_raw": 3893953,
+      "wc_btormc_dump": 227923
+    }
+  },
+  "return-from-loop-1-35-rotorized.btor2": {
+    "Success": {
+      "props": [
+        {
+          "kind": "Bad",
+          "name": "core-0-bad-exit-code",
+          "node": 320003,
+          "idx": 6
+        }
+      ],
+      "steps": 822,
+      "hyperfine": {
+        "results": [
+          {
+            "command": "timeout --foreground 300s btormc ../selfie/examples/symbolic/return-from-loop-1-35-rotorized.btor2 -kmax 3000",
+            "mean": 2.961896819000001,
+            "stddev": 0.04388205749057263,
+            "median": 2.9449462286,
+            "user": 2.79493172,
+            "system": 0.16668816,
+            "min": 2.9120778546,
+            "max": 3.0081928576,
+            "times": [
+              2.9120778546,
+              2.9362143445999997,
+              3.0080528096,
+              2.9449462286,
+              3.0081928576
+            ],
+            "exit_codes": [
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        ]
+      },
+      "wc_raw": 3881779,
+      "wc_btormc_dump": 227542
+    }
+  },
+  "simple-if-else-1-35-rotorized.btor2": {
+    "Success": {
+      "props": [
+        {
+          "kind": "Bad",
+          "name": "core-0-bad-exit-code",
+          "node": 320003,
+          "idx": 6
+        }
+      ],
+      "steps": 824,
+      "hyperfine": {
+        "results": [
+          {
+            "command": "timeout --foreground 300s btormc ../selfie/examples/symbolic/simple-if-else-1-35-rotorized.btor2 -kmax 3000",
+            "mean": 2.97481529706,
+            "stddev": 0.04393813272826717,
+            "median": 2.95903003986,
+            "user": 2.80816,
+            "system": 0.16441038,
+            "min": 2.92902817586,
+            "max": 3.02534139886,
+            "times": [
+              2.92902817586,
+              3.01750499386,
+              2.95903003986,
+              3.02534139886,
+              2.94317187686
+            ],
+            "exit_codes": [
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        ]
+      },
+      "wc_raw": 3882050,
+      "wc_btormc_dump": 227726
+    }
+  },
+  "invalid-memory-access-fail-2-35-rotorized.btor2": {
+    "Success": {
+      "props": [
+        {
+          "kind": "Bad",
+          "name": "core-0-store-seg-fault",
+          "node": 360041,
+          "idx": 10
+        }
+      ],
+      "steps": 719,
+      "hyperfine": {
+        "results": [
+          {
+            "command": "timeout --foreground 300s btormc ../selfie/examples/symbolic/invalid-memory-access-fail-2-35-rotorized.btor2 -kmax 3000",
+            "mean": 5.60415999552,
+            "stddev": 0.07395519659254741,
+            "median": 5.55374263952,
+            "user": 5.32597082,
+            "system": 0.27374026,
+            "min": 5.54662923452,
+            "max": 5.69834245852,
+            "times": [
+              5.67045958452,
+              5.54662923452,
+              5.69834245852,
+              5.551626060519999,
+              5.55374263952
+            ],
+            "exit_codes": [
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        ]
+      },
+      "wc_raw": 3894996,
+      "wc_btormc_dump": 228048
+    }
+  },
+  "division-by-zero-3-35-rotorized.btor2": {
+    "Success": {
+      "props": [
+        {
+          "kind": "Bad",
+          "name": "core-0-known-instructions",
+          "node": 307005,
+          "idx": 2
+        }
+      ],
+      "steps": 716,
+      "hyperfine": {
+        "results": [
+          {
+            "command": "timeout --foreground 300s btormc ../selfie/examples/symbolic/division-by-zero-3-35-rotorized.btor2 -kmax 3000",
+            "mean": 4.46645831118,
+            "stddev": 0.04067323180322993,
+            "median": 4.48115917078,
+            "user": 4.20692622,
+            "system": 0.25915564,
+            "min": 4.40131266278,
+            "max": 4.50694919878,
+            "times": [
+              4.48673435178,
+              4.45613617178,
+              4.48115917078,
+              4.40131266278,
+              4.50694919878
+            ],
+            "exit_codes": [
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        ]
+      },
+      "wc_raw": 3882584,
+      "wc_btormc_dump": 227912
+    }
+  }
+}
