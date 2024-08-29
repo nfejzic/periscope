@@ -6,6 +6,9 @@ periscope-py/**/*.jpg
 periscope-rs/.tmp
 periscope-rs/**/*.json
 
+thesis/*.bbl
+thesis/*.pdf
+
 **/debug
 **/*.wit
 **/*.bwit
