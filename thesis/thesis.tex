@@ -201,9 +201,9 @@ Univ.-Prof. Dipl.-Inform. Dr.-Ing. Christoph Kirsch
 
 \abstract{
     % What is it about, and why is it important?
-    When working with software programs, we often want to ensure that they
-    uphold certain invariants. Various techniques exist for this purpose, such
-    as testing. However, testing requires running the program with every
+    When working with software programs, we want to ensure that they do not
+    reach certain unsafe states. Various techniques exist for this purpose,
+    such as testing. However, testing requires running the program with every
     possible input, which is often not practical because of the large input
     space. Most often we want to check whether an input exists such that our
     program reaches a specific state. This is known as the state reachability
@@ -224,9 +224,10 @@ Univ.-Prof. Dipl.-Inform. Dr.-Ing. Christoph Kirsch
     % Why is our finding important?
     As we reduced the program correctness problem to satisfiability problem,
     solving it is NP-Complete and computationally expensive. However, model
-    generation is linear in the size of the model. We took advantage of this
-    and generated many equivalent models to analyze impact of different
-    configurations on solving performance of \texttt{btormc} model checker.
+    generation is linear in the size of the input program. We took advantage of
+    this property and generated many equivalent models to analyze impact of
+    different configurations on solving performance of \texttt{btormc} model
+    checker.
     % What did we create and find?
     In this thesis, we present a toolbox \texttt{peRISCope} for easy
     benchmarking of different model configurations. We also present and analyze
@@ -258,7 +259,7 @@ techniques, such as testing, are used as an attempt to ensure the correctness
 of written software. When testing our program we are looking for specific
 inputs that might be problematic and we check if our program performs as
 expected. In other words, we are looking for inputs for which our program
-reaches a certain state. However, in order to prove that the program is
+reaches a certain unsafe state. However, in order to prove that the program is
 correct, one would have to test it with every possible input.
 
 Running tests with every possible input is not feasible for most of practical
@@ -332,12 +333,12 @@ tracking of the time taken for solving.
 Software programs are written with a particular goal in mind. We can create a 
 specification that describes what the goal of the program is. If the program 
 does what it's supposed to do as defined by the specification, we say that the
-program is correct. Depending on the program and our requirements, we can define
-different specifications for different types of correctness. For example, we can
-check whether the program logically does what it's supposed to. This would be 
-logical correctness. Another example is we can check whether the program
-performs unsafe operations, such as accessing memory out of bounds. This would
-be safety correctness and so on.
+program is correct. Depending on the program and our requirements, we can
+define different specifications for different types of correctness. For
+example, we can check whether the program logically does what it's supposed to.
+This would be logical correctness. Another example is we can check whether the
+program performs unsafe operations, such as accessing memory out of bounds.
+This would be safety correctness and so on.
 
 In the context of this thesis, correctness of the program is defined as:
 
