@@ -204,36 +204,38 @@ Univ.-Prof. Dipl.-Inform. Dr.-Ing. Christoph Kirsch
     When working with software programs, we often want to ensure that they
     uphold certain invariants. Various techniques exist for this purpose, such
     as testing. However, testing requires running the program with every
-    possible input, which is often not practical. Most often we want to check
-    whether an input exists such that our program reaches a specific state.
-    This is known as the state reachability problem, which can be reduced to
-    the boolean satisfiability problem and solved by SAT-solvers.
+    possible input, which is often not practical because of the large input
+    space. Most often we want to check whether an input exists such that our
+    program reaches a specific state. This is known as the state reachability
+    problem, which can be reduced to the boolean satisfiability problem and
+    solved by SAT-solvers.
     % How did we do it?
     The reduction can be done by encoding the sequence of machine instructions
     in the program as a satisfiability formula in the theory of bit-vectors,
     known as a Satisfiability Modulo Theory (SMT) formula. The resulting
-    formula is the model of our program and it encodes its behaviour and
-    constraints we want to check in a language designed for this purpose called
-    BTOR2. Bit-vectors represent signed and unsigned integers of fixed
-    bit-length. SAT-solvers can solve boolean formulae, so we must reduce
-    SMT-formulae with bit-vectors to equivalent boolean logic formulae by
-    technique called bit-blasting. We can then run a SAT-solver on resulting
-    boolean formula, which will tell us whether the program satisfies the given
-    constraints. Effectively, we reduced the problem of program correctness to
-    the satisfiability problem. Important to notice is that only a finite
-    number of instructions can be transformed this way, which makes the model
-    checking bounded in number of executed instructions.
+    formula is the model of our program. SMT-formulae are then further reduced
+    to boolean logic formulae by technique called bit-blasting. We can then run
+    a SAT-solver on resulting boolean formulae, which will tell us whether the
+    program satisfies the given constraints. Effectively, we reduced the
+    problem of program correctness to the satisfiability problem. Important to
+    notice is that only a finite number of instructions can be transformed this
+    way, which makes the model checking bounded in number of executed
+    instructions.
     % Why is our finding important?
     As we reduced the program correctness problem to satisfiability problem,
-    proving it is NP-Complete and is computationally expensive. However, model
+    solving it is NP-Complete and computationally expensive. However, model
     generation is linear in the size of the model. We took advantage of this
-    fact and generated many equivalent models to analyze impact of different
+    and generated many equivalent models to analyze impact of different
     configurations on solving performance of \texttt{btormc} model checker.
     % What did we create and find?
-    In this thesis, we present a toolbox for easy benchmarking of different
-    model configurations. We also present and analyze results from benchmarking
-    of solving time for models with different code and non-code memory
-    granularity configurations.
+    In this thesis, we present a toolbox \texttt{peRISCope} for easy
+    benchmarking of different model configurations. We also present and analyze
+    results from benchmarking of solving time for models with different code
+    and non-code memory granularity configurations. We found that models with
+    smaller memory granularity were solved faster in models generated from
+    binaries compiled with \texttt{starc} compiler. On models generated from
+    binaries compiled with \texttt{gcc} compiler, models with larger memory
+    granularity were solved faster.
 }
 
 % \vspace*{\fill}
@@ -253,51 +255,75 @@ Univ.-Prof. Dipl.-Inform. Dr.-Ing. Christoph Kirsch
 
 One of the requirements for software programs is the correctness. Varying
 techniques, such as testing, are used as an attempt to ensure the correctness
-of written software. However, in order to prove that the program is correct,
-one would have to test it with every possible input.
+of written software. When testing our program we are looking for specific
+inputs that might be problematic and we check if our program performs as
+expected. In other words, we are looking for inputs for which our program
+reaches a certain state. However, in order to prove that the program is
+correct, one would have to test it with every possible input.
 
-Doing that is not feasible for most of the practical programs. What we can do
-instead, is to prove that program has the desired properties for any input.
-Software programs are a series of machine instructions executed by a machine.
-Instructions and memory access in a machine are implemented using logical gates
-in hardware. These logical gates can be modelled as boolean formulae, which
-means that programs can be modelled as boolean formulae as well.
+Running tests with every possible input is not feasible for most of practical
+programs because of the large input space. For programs with an 8-bit input,
+the number of possible inputs we need to check is $2^8 = 256$. Each additional
+bit doubles the number of possible inputs we would have to check, which rapidly
+becomes impractical. What we can do instead, is to prove that the program has
+the desired properties for any input. For that, we transform software programs,
+which are a series of machine instructions executable by a machine, to a
+mathematical model. In our case we transform the sequence of machine
+instructions to a satisfiability formula over the theory of bit-vectors and
+arrays of bit-vectors. Bit-vectors are signed and unsigned integers with fixed
+bit-length. Such formula is called a Satisfiability Modulo Theory (SMT)
+formula, and it uses values which are bit-vectors. In addition to instructions
+contained in the program, we can also add any additional constraints we want
+our program to uphold. Each of the used functions and predicates in an
+SMT-formula can be reduced to a boolean logic formula equivalent to the circuit
+logic of a corresponding instruction in hardware by bit-blasting. For example, 
+addition of two 8-bit bit-vectors is reduced to a boolean formula for an 8-bit
+full adder. By doing this, we reduce the problem of program correctness to the
+problem of state reachability and then to the boolean satisfiability problem.
+We can now run a SAT-solver on the resulting boolean formula, which will tell
+us whether our program satisfies the desired constraints. This reduction is
+limited to a finite number of machine instructions, which makes the model
+checking bounded in number of executed instructions.
 
-Correctness of a program can be formulated as the state reachability problem
-and then reduced to the boolean satisfiability problem. During the conversion
-of program to a boolean formula (the model) we can add constraints that model
-the desired properties of the program. Solving such model gives us the answer
-whether the program satisfies all of the constraints, and thus whether it
-possesses the desired properties. 
+Since the model is a reduction of the correctness problem to a satisfiability
+problem, solving the model means solving the satisfiability problem. The
+satisfiability problem is, however, NP-Complete. This means that solving of
+such models is computationally expensive. On the other hand, model generation
+can be computed linearly in the size of the program (number of instructions).
 
-Generating such models can be computed linearly in the size of the program
-(number of instrucitons). Since the model is a reduction of the correctness
-problem to a satisfiability problem, solving the model means solving the
-satisfiability problem. The satisfiability problem is, however, NP-Complete.
-This means that solving of such models is computationally expensive. 
+Fast model generation can be taken advantage of and we can generate multiple
+equivalent models with different configurations in order to influence the
+complexity of resulting boolean formulae. To better illustrate this, we can
+analyze, for example, the memory access circuitry in machines and, therefore,
+the boolean logic formulae for memory access in generated models.
 
-When generating models, we can tweak different parameters in order to influence
-its complexity. For example, machines contain circuits for memory access.
 Depending on the size of each addressable memory block (memory granularity), we
-need to access a different number of addresses. This means that, for smaller
-memory blocks, more addresses are needed to access the whole memory, which
-results in more complicated model of memory access. Larger memory granularity
-is better in this regard, but worse in others. In general, extracting values
-from memory that differ in number of bits from the used memory granularity
-increases complexity. We might need to use bit-shifting and bit-masking to
-extract the desired value. If our program has frequent access to values in
-memory smaller or larger than the configured memory granularity, then this adds
-more complexity for each such memory access. So memory granularity might affect
-the solving performance.
+need different number of addresses to access the whole memory. Machines have
+logic circuits for memory address decoding combined with logic circuits for
+accessing specific memory lines. These logic circuits are encoded in our models
+as well. With smaller memory granularity, we need more addresses to access the
+whole memory. Opposite is the case for larger memory granularity. So the
+complexity of logic circuits for memory access is directly influenced by the
+memory granularity. Larger memory granularity is better in this regard, but
+worse in others. In general, extracting values from memory that differ in
+number of bits from the used memory granularity increases complexity. We might
+need to use bit-shifting, bit-masking and even multiple loads or stores in
+order to manipulate the desired value. This logic for reading and writing of
+values from and to memory is encoded in our models as well. All this influences
+complexity in models of programs with frequent access to values in memory
+smaller or larger then the configured memory granularity. By changing the
+memory granularity we shift the complexity of models between the formulae for
+memory address decoding and memory access logic, and formulae for logic of
+reading and writing of values from and to memory.
 
-We can tweak parameters of models to analyze how these shifts in complexity
-affect the performance of solvers. In this thesis we're particularly
-interested in solving performance when using different combinations of memory
-granularity for code and non-code memory segments. We also aim for a general
-setup that can be used to test and benchmark models of the same program
-generated using different parameters. 
-
-\newpage
+We can tweak many parameters of models to analyze how these shifts in
+complexity affect the performance of \texttt{btormc} model checker. In this
+thesis we're particularly interested in solving performance when using
+different combinations of memory granularity for code and non-code memory
+segments. We present a toolbox \texttt{peRISCope} that orchestrates the
+benchmarking of model solving. This includes generation of models with
+different configurations, running the model checker on generated models and
+tracking of the time taken for solving.
 
 \section{Bounded model checking}
 
@@ -469,8 +495,8 @@ memory access and therefore the complexity of the model. Smaller memory
 granularity requires more lines for input/output and larger memory addresses,
 which increases complexity in all of the mentioned components.
 
-\begin{figure}
-    \includegraphics[width=\linewidth]{assets/64_bit_instruction_load.png}
+\begin{figure}[h]
+    \includegraphics[width=0.95\linewidth]{assets/64_bit_instruction_load.png}
     \centering
     \caption{Loading 32-bit instruction \cite{waterman2014risc} from memory with 64-bit granularity.}
     \label{fig:instruction_load_example}
@@ -578,8 +604,6 @@ model.
 20 bad 19
 \end{lstlisting}
 
-
-\newpage
 \begin{lstlisting}[label=lst:c_code, language=c, caption={\texttt{C} code we generate a model from},captionpos=b]
 int main(void) {
     bool turn;
@@ -738,6 +762,7 @@ granularity and to benchmark only models that match any of the entries in the
 \texttt{files} list. The \texttt{timeout} parameter sets the maximum number of
 seconds solving is allowed to take.
 
+\newpage
 \begin{lstlisting}[label=lst:periscope_config, caption={Example peRISCope
                 configuration file in \texttt{YAML} format}, captionpos=b]
 timeout: 300
@@ -857,7 +882,7 @@ The benchmarks were run on a machine with following specifications:
     \item Graphics: AMD Radeon Vega Mobile Series (Integrated)
     \item Memory: 16GB LPDDR4-4167
 \end{itemize}
-\newpage
+
 \begin{lstlisting}[label=lst:results_file, caption={Example of \texttt{peRISCope} results file}, captionpos=b]
 {
   "division-by-zero-3-35-rotorized.btor2": {
@@ -899,7 +924,6 @@ The benchmarks were run on a machine with following specifications:
   }
 }
 \end{lstlisting}
-\newpage
 
 \section{Experiment results}
 
