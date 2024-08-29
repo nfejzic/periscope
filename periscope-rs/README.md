@@ -16,6 +16,8 @@ available on your system:
   characters in model files.
 - [hyperfine](https://github.com/sharkdp/hyperfine) - command line benchmarking
   tool
+- [timeout](https://www.gnu.org/software/coreutils/manual/html_node/timeout-invocation.html) - command
+  for running commands with a time limit.
 
 ## Build
 
@@ -56,4 +58,31 @@ For better performance, you can use the `--release` flag:
 
 ```
 cargo run --release -- <arguments_for_periscope>
+```
+
+## Configuration
+
+peRISCope uses a configuration file in either JSON or YAML format. Consult the
+reference configuration for more information: 
+
+```yaml
+# optional timeout. If present, the `btormc` command will run no longer than the
+# number of seconds specified here.
+timeout: 300
+
+# optional additional flags for btormc. Default is "-kmax 200"
+btormc-flags: "-kmax 200"
+
+# list of filenames to filter. Only models that match one of the filenames
+# specified in this list will be benchmarked.
+files:
+  - "model1.btor"
+  - "model2.btor"
+
+# list of run names and corresponding arguments for `rotor`. The `rotor` will
+# be run with these (additional) arguments, and the results of the run will be
+# saved in file with the name of the run as filename.
+runs:
+  32-codewordsize: "0 -codewordsize 32"
+  64-codewordsize: "0 -codewordsize 64"
 ```

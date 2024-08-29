@@ -17,18 +17,6 @@ mod hyperfine;
 mod rotor;
 mod wc;
 
-// What I need to do:
-//
-// 1. Collect all btor2 files
-// 2. run btormc on each of them -> collect the output
-//    - we can run `wc` before running btormc to get the number of characters in the model
-//    - we can also run `wc` on dump of `btormc` to get the character count without comments and
-//    after `btormc` has optimized it
-//    - we can run hyperfine with `--export-json /dev/stdout` to get json formatted runs
-//    - we can then parse the json to get relevant information
-//    - we can redirect the output of `btormc` to a temp file, which we parse to get information
-//    about the model (number of steps, which bad state)
-
 #[derive(Default, Debug, Clone, Serialize, Deserialize)]
 pub struct BenchConfig {
     pub timeout: Option<u128>,

@@ -60,13 +60,13 @@ fn main() -> anyhow::Result<()> {
 fn prepare_bench_config(
     run_rotor: bool,
     filter_files: Vec<String>,
-    bench_config: Option<PathBuf>,
+    bench_config_path: Option<PathBuf>,
     results_path: Option<PathBuf>,
 ) -> anyhow::Result<BenchConfig> {
     let mut config = BenchConfig::default();
 
     if run_rotor {
-        config = bench_config
+        config = bench_config_path
             .map(|path| {
                 let file = std::fs::File::open(&path)
                     .map_err(|err| anyhow::format_err!("Could not open config file: {err}"))?;
