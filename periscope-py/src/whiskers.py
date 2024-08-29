@@ -24,10 +24,7 @@ def plot_whiskers(
     periscope_results: list[BenchResult],
     figure: figure.Figure,
 ):
-    if args.labels:
-        labels = args.labels.split(",")
-    else:
-        labels = [b.name for b in periscope_results]
+    labels = [b.name for b in periscope_results]
     times = [b.times for pr in periscope_results for b in pr.hyperfine_results()]
 
     if args.sort_by == "median":
@@ -51,7 +48,7 @@ def plot_whiskers(
     if args.title:
         plt.title(args.title)
     # plt.legend(handles=boxplot["boxes"], labels=labels, loc="best", fontsize="medium")
-    plt.title(pathlib.Path(args.file).stem)
+    plt.title("Solving time and model size")
     plt.ylabel("Time [s]")
     plt.ylim(0, None)
     plt.xticks(list(range(1, len(labels) + 1)), labels, rotation=65)

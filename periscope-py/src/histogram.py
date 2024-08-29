@@ -1,6 +1,4 @@
 import argparse
-import pathlib
-from pprint import pprint
 
 from matplotlib import figure, pyplot as plt
 import numpy as np
@@ -26,17 +24,11 @@ def plot_histogram(
     figure: figure.Figure,
     of_dump: bool,
 ):
-    if args.labels:
-        labels = args.labels.split(",")
-    else:
-        labels = [b.name for b in periscope_results]
-
+    labels = [b.name for b in periscope_results]
     all_times = [b.times for pr in periscope_results for b in pr.hyperfine_results()]
 
     t_min = np.min(list(map(np.min, all_times)))
     t_max = np.max(list(map(np.max, all_times)))
-
-    pprint(all_times)
 
     if of_dump:
         wcs = [pr.results.wc_btormc_dump for pr in periscope_results]
@@ -50,7 +42,7 @@ def plot_histogram(
     colors = [cmap(val / len(times)) for val in range(len(times))]
     plt.bar(x=times, height=wcs, label=labels, color=colors, width=5)
 
-    plt.title(pathlib.Path(args.file).stem)
+    plt.title("Solving time and model size")
     plt.xlabel("Time [s]")
 
     if of_dump:

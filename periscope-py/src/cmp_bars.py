@@ -130,6 +130,5 @@ def plot_cmp_bars(
     # plt.xticks(label_positions, labels, rotation=0)
 
     plt.ylim(0.1, 300)
-    legend = list(map(lambda x: x.removesuffix(
-        ".json").replace("-", " "), legend))
+    legend = list(map(lambda x: x.removesuffix(".json").replace("-", " "), legend))
     plt.legend(handles=handles, labels=legend)

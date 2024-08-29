@@ -24,7 +24,7 @@ import periscope_result
 
 
 def main(args: argparse.Namespace):
-    figure = plt.figure(figsize=(20, 8), constrained_layout=True)
+    figure = plt.figure(figsize=(20, 15), constrained_layout=True)
 
     matplotlib.rcParams.update({"font.size": 16})
 
@@ -33,6 +33,8 @@ def main(args: argparse.Namespace):
             periscope_results = periscope_result.results_from_file(args.path)
             whiskers.plot_whiskers(args, periscope_results, figure)
         case "cmp-bars":
+            figure = plt.figure(figsize=(20, 15), constrained_layout=True)
+
             if isfile(args.path):
                 error(f"'{args.path}' is not a directory.")
 
@@ -45,13 +47,12 @@ def main(args: argparse.Namespace):
 
             cmp_bars.plot_cmp_bars(args, files_with_results, figure)
         case "histogram":
+            figure = plt.figure(figsize=(20, 15), constrained_layout=True)
             periscope_results = periscope_result.results_from_file(args.path)
-            histogram.plot_histogram(
-                args, periscope_results, figure, of_dump=False)
+            histogram.plot_histogram(args, periscope_results, figure, of_dump=False)
         case "histogram-after-dump":
             periscope_results = periscope_result.results_from_file(args.path)
-            histogram.plot_histogram(
-                args, periscope_results, figure, of_dump=True)
+            histogram.plot_histogram(args, periscope_results, figure, of_dump=True)
         case _:
             print("Unknown type passed.")
             return
@@ -68,13 +69,9 @@ def parse_args():
         "path", help="JSON file or path with json files with benchmark results"
     )
     parser.add_argument("--title", help="Plot Title")
-    parser.add_argument(
-        "--sort-by", choices=["median", "wc"], help="Sort method")
+    parser.add_argument("--sort-by", choices=["median", "wc"], help="Sort method")
     parser.add_argument(
         "--scale", choices=["linear", "log"], help="Scaling of the plog"
-    )
-    parser.add_argument(
-        "--labels", help="Comma-separated list of entries for the plot legend"
     )
     parser.add_argument(
         "--type",
@@ -83,8 +80,7 @@ def parse_args():
         (dump of ) the model on y axis and the time on x axis \
         for each file.",
     )
-    parser.add_argument(
-        "-o", "--output", help="Save image to the given filename.")
+    parser.add_argument("-o", "--output", help="Save image to the given filename.")
 
     return parser.parse_args()
 
