@@ -7,6 +7,7 @@ use std::fmt::Write;
 
 use super::helpers;
 
+/// Represents different kinds of possible assignments representation in BTOR2 witness format.
 #[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub enum AssignmentKind {
     /// Assignment to a bitvector.
@@ -29,15 +30,30 @@ pub enum AssignmentKind {
 }
 
 impl AssignmentKind {
+    /// Generate a visual representation of the assignment kind.
+    ///
+    /// # Example:
+    ///
+    /// ```ignore
+    /// let bitvec = AssignmentKind::BitVec { value: 6, bits: 3 };
+    /// assert_eq!(bitvec.to_binary_string(), "110");
+    ///
+    /// let array = AssignmentKind::Array {
+    ///     index: 2,
+    ///     value: 3,
+    ///     bits: 3,
+    /// };
+    /// assert_eq!(array.to_binary_string(), "[010] -> 011");
+    /// ```
     pub fn to_binary_string(self) -> String {
         let (bits, extra) = match self {
             AssignmentKind::BitVec { bits, .. } => (bits, 0),
-            AssignmentKind::Array { bits, .. } => (bits * 2, 4),
+            AssignmentKind::Array { bits, .. } => (bits * 2, 6),
         };
 
         let mut buf = String::with_capacity(bits + extra);
 
-        let write_bits = |buf: &mut String, value, len: usize| {
+        let write_bits = |buf: &mut String, value: u64, len: usize| {
             (0..len).rev().for_each(|i| {
                 let bit = (value >> i) & 1;
                 write!(buf, "{}", bit).expect("Writing to string is infallible.");
@@ -61,9 +77,12 @@ impl AssignmentKind {
     }
 }
 
+/// Represents an assignment in BTOR2 witness format.
 #[derive(Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Assignment {
+    /// The kind of assignment, either bitvec or array.
     pub kind: AssignmentKind,
+    /// The optional symbol for the assignment.
     pub symbol: Option<String>,
 }
 
@@ -110,6 +129,7 @@ impl std::fmt::Debug for Assignment {
     }
 }
 
+/// Parse a BTOR2 symbol.
 fn symbol(input: &str) -> nom::IResult<&str, &str> {
     let (input, mut symbol) =
         complete::take_while1(|txt: char| txt.is_ascii() && txt != '\n')(input)?;
@@ -121,10 +141,12 @@ fn symbol(input: &str) -> nom::IResult<&str, &str> {
     Ok((input, symbol))
 }
 
+/// Parse a string that contains binary content (i.e. '0' and '1').
 fn binary_string(input: &str) -> nom::IResult<&str, &str> {
     bytes::complete::take_while1(|i| i == '0' || i == '1')(input)
 }
 
+/// Parse bitvec assignment.
 fn bitvec_assign(input: &str) -> nom::IResult<&str, AssignmentKind> {
     combinator::map(binary_string, |val| {
         let value = u64::from_str_radix(val, 2).expect("binary_string parses only 0s and 1s.");
@@ -136,6 +158,7 @@ fn bitvec_assign(input: &str) -> nom::IResult<&str, AssignmentKind> {
     })(input)
 }
 
+/// Parse array assignment.
 fn array_assign(input: &str) -> nom::IResult<&str, AssignmentKind> {
     let array_index = sequence::preceded(
         complete::tag("["),
@@ -152,4 +175,22 @@ fn array_assign(input: &str) -> nom::IResult<&str, AssignmentKind> {
             bits: value.len(),
         },
     )(input)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::AssignmentKind;
+
+    #[test]
+    fn assignment_kind_to_binary_string() {
+        let bitvec = AssignmentKind::BitVec { value: 6, bits: 3 };
+        assert_eq!(bitvec.to_binary_string(), "110");
+
+        let array = AssignmentKind::Array {
+            index: 2,
+            value: 3,
+            bits: 3,
+        };
+        assert_eq!(array.to_binary_string(), "[010] -> 011");
+    }
 }

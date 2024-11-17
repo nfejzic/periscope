@@ -1,6 +1,5 @@
 use std::{fs::OpenOptions, io::Read, path::Path, process::Command};
 
-use anyhow::Context;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -52,13 +51,8 @@ pub fn run(
         .arg("--ignore-failure")
         .arg("--export-json")
         .arg(json_path)
-        .args([
-            "--output",
-            hyperfine_output
-                .as_ref()
-                .to_str()
-                .context("Invalid path for output from 'btormc'")?,
-        ])
+        .arg("--output")
+        .arg(hyperfine_output.as_ref().as_os_str())
         .arg(&btormc_cmd)
         .spawn()?
         .wait()?;

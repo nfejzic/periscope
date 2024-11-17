@@ -10,7 +10,8 @@ use std::{
     str::FromStr,
 };
 
-use nom::{branch, combinator, multi};
+use anyhow::Context;
+use nom::{combinator, multi, sequence};
 
 use self::{
     assignment::Assignment,
@@ -20,12 +21,15 @@ use self::{
 
 pub use witness_format::{Prop, PropKind, PropVec};
 
+/// Parse the BTOR2 witness format produced by the `btormc` command.
 pub fn parse_btor_witness<I: Read>(
     mut input: I,
     btor2: Option<impl Read>,
 ) -> anyhow::Result<Witness> {
     let mut buf = String::new();
-    let _ = input.read_to_string(&mut buf);
+    let _ = input
+        .read_to_string(&mut buf)
+        .context("Failed reading the witness format input.")?;
 
     let mut witness = Witness::from_str(&buf)
         .map_err(|err| anyhow::format_err!("Failed to parse witness. Cause: {err}"))?;
@@ -37,9 +41,10 @@ pub fn parse_btor_witness<I: Read>(
     Ok(witness)
 }
 
+/// The AST for the BTOR2 witness format.
 #[derive(Debug, Clone)]
 pub struct Witness {
-    pub formats: Vec<WitnessFormat>,
+    pub inner: WitnessFormat,
 }
 
 impl FromStr for Witness {
@@ -50,11 +55,13 @@ impl FromStr for Witness {
             return Err(String::from("No satisfiable property found."));
         }
 
-        let comment_parser = combinator::map(multi::many1(helpers::comment), |_| vec![]);
-        let whole_parser = branch::alt((comment_parser, multi::many1(WitnessFormat::parse)));
+        let comments_parser = combinator::opt(multi::many1(helpers::comment));
+        // NOTE: this is not quite correct. According to the grammar, proper witness format is
+        //       either any number of comments OR witness header, followed by at least one frame
+        //       and finished with a dot. However, we treat input with comments only as invalid.
+        let whole_parser = sequence::preceded(comments_parser, WitnessFormat::parse);
 
-        let mut witness_parser =
-            combinator::map(whole_parser, |parsed| Witness { formats: parsed });
+        let mut witness_parser = combinator::map(whole_parser, |inner| Witness { inner });
 
         match witness_parser(input) {
             Ok((rest, witness)) => {
@@ -75,42 +82,39 @@ enum FlowType {
 }
 
 impl Witness {
-    pub fn props_in_steps(&self) -> Vec<(PropVec, usize)> {
-        let mut res = Vec::with_capacity(self.formats.len());
-
-        for format in &self.formats {
-            let props = format.header.props.clone();
-            res.push((PropVec { inner: props }, format.frames.len()));
-        }
-
-        res
+    pub fn props_in_steps(&self) -> (PropVec, usize) {
+        let props = self.inner.header.props.clone();
+        (PropVec { inner: props }, self.inner.frames.len())
     }
 
+    /// Analyze the `Witness` parsed from witness format and produce human readable presentation of
+    /// the analysis.
     pub fn analyze_and_report(&self) {
-        for (props, steps) in self.props_in_steps() {
-            let props = props
-                .inner
-                .iter()
-                .map(|prop| {
-                    let mut prop_string = prop.to_string();
+        let (props, steps) = self.props_in_steps();
 
-                    if matches!(&prop.property, Some(property) if property.name.is_some()) {
-                        let property = prop.property.as_ref().unwrap();
-                        let _ = write!(
-                            &mut prop_string,
-                            " named '{}' with nid: {}",
-                            property.name.as_ref().unwrap(),
-                            property.node
-                        );
-                    }
+        let props = props
+            .inner
+            .iter()
+            .map(|prop| {
+                let mut prop_string = prop.to_string();
 
-                    prop_string
-                })
-                .collect::<Vec<_>>()
-                .join(", ");
+                if matches!(&prop.property, Some(property) if property.name.is_some()) {
+                    let property = prop.property.as_ref().unwrap();
+                    let _ = write!(
+                        &mut prop_string,
+                        " named '{}' with nid: {}",
+                        property.name.as_ref().unwrap(),
+                        property.node
+                    );
+                }
 
-            println!("Satisifed properties in {} steps:\n    {}\n", steps, props,);
-        }
+                prop_string
+            })
+            .collect::<Vec<_>>()
+            .join(", ");
+
+        println!("Satisifed properties in {steps} steps:");
+        println!("    {props}\n");
 
         self.analyze_input_flow();
         self.analyze_state_flow();
@@ -205,13 +209,9 @@ impl Witness {
     }
 
     fn analyze_input_flow(&self) {
-        let frames_and_assignments =
-            self.formats
-                .iter()
-                .flat_map(|fmt| &fmt.frames)
-                .flat_map(|frame| {
-                    std::iter::repeat(frame).zip(frame.input_part.model.assignments.iter())
-                });
+        let frames_and_assignments = self.inner.frames.iter().flat_map(|frame| {
+            std::iter::repeat(frame).zip(frame.input_part.model.assignments.iter())
+        });
 
         let (inputs, max_step) = Self::collect_assignments(frames_and_assignments);
 
@@ -221,18 +221,14 @@ impl Witness {
     }
 
     fn analyze_state_flow(&self) {
-        let frames_and_assignments =
-            self.formats
-                .iter()
-                .flat_map(|fmt| &fmt.frames)
-                .flat_map(|frame| {
-                    std::iter::repeat(frame).zip(
-                        frame
-                            .state_part
-                            .iter()
-                            .flat_map(|sp| sp.model.assignments.iter()),
-                    )
-                });
+        let frames_and_assignments = self.inner.frames.iter().flat_map(|frame| {
+            std::iter::repeat(frame).zip(
+                frame
+                    .state_part
+                    .iter()
+                    .flat_map(|sp| sp.model.assignments.iter()),
+            )
+        });
 
         let (inputs, max_step) = Self::collect_assignments(frames_and_assignments);
 
@@ -241,11 +237,9 @@ impl Witness {
     }
 
     fn add_prop_names(&mut self, mut btor2_prop_names: HashMap<u64, Property>) {
-        for format in &mut self.formats {
-            for prop in format.header.props.iter_mut() {
-                if let Some(property) = btor2_prop_names.remove(&prop.idx) {
-                    prop.property = Some(property);
-                }
+        for prop in self.inner.header.props.iter_mut() {
+            if let Some(property) = btor2_prop_names.remove(&prop.idx) {
+                prop.property = Some(property);
             }
         }
     }
