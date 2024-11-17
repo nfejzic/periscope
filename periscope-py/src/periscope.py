@@ -55,14 +55,14 @@ def main(args: argparse.Namespace):
                 exit(1)
 
             periscope_results = periscope_result.results_from_file(args.path)
-            histogram.plot_histogram(args, periscope_results, figure, of_dump=False)
+            histogram.plot_histogram(periscope_results, figure, of_dump=False)
         case "histogram-after-dump":
             if not isfile(args.path):
                 error(f"'{args.path}' is not a file.")
                 exit(1)
 
             periscope_results = periscope_result.results_from_file(args.path)
-            histogram.plot_histogram(args, periscope_results, figure, of_dump=True)
+            histogram.plot_histogram(periscope_results, figure, of_dump=True)
         case _:
             print("Unknown type passed.")
             exit(1)

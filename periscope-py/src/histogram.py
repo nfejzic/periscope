@@ -1,5 +1,3 @@
-import argparse
-
 from matplotlib import figure, pyplot as plt
 import numpy as np
 
@@ -19,7 +17,6 @@ def cmp_wc(labels: list[str], periscope_results: list[BenchResult]):
 
 
 def plot_histogram(
-    args: argparse.Namespace,
     periscope_results: list[BenchResult],
     figure: figure.Figure,
     of_dump: bool,
@@ -37,7 +34,6 @@ def plot_histogram(
 
     times = list(map(np.min, all_times))
 
-    fig_width, _ = plt.gcf().get_size_inches()
     _ = figure.subplots(1, 1)
     cmap = plt.get_cmap("rainbow")
 
@@ -52,7 +48,6 @@ def plot_histogram(
     else:
         plt.ylabel("Model Size [#chars]")
 
-    # step = fig_width / len(periscope_results)
     plt.xticks(np.arange(np.floor(t_min), np.floor(t_max), step=1))
     plt.xticks(
         labels,
