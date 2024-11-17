@@ -1,9 +1,9 @@
 import argparse
 import functools
-import pathlib
 
 from matplotlib import figure
 import matplotlib.pyplot as plt
+import numpy as np
 
 from periscope_result import BenchResult
 
@@ -26,6 +26,7 @@ def plot_whiskers(
 ):
     labels = [b.name for b in periscope_results]
     times = [b.times for pr in periscope_results for b in pr.hyperfine_results()]
+    max_time = np.max(times)
 
     if args.sort_by == "median":
         medians = [b.median for pr in periscope_results for b in pr.hyperfine_results()]
@@ -37,7 +38,7 @@ def plot_whiskers(
         times = [times[i] for i in indices]
 
     _ = figure.subplots(1, 1)
-    plt.subplots(figsize=(20, 12), constrained_layout=True)
+    _, ax2 = plt.subplots(figsize=(20, 12), constrained_layout=True)
     boxplot = plt.boxplot(times, vert=True, patch_artist=True)
     cmap = plt.get_cmap("rainbow")
     colors = [cmap(val / len(times)) for val in range(len(times))]
@@ -45,10 +46,16 @@ def plot_whiskers(
     for patch, color in zip(boxplot["boxes"], colors):
         patch.set_facecolor(color)
 
+    title = "Solving time and model size"
+
+    if args.scale == "log":
+        ax2.set_yscale("log")
+        title += " (Log scale)"
+
     if args.title:
         plt.title(args.title)
-    # plt.legend(handles=boxplot["boxes"], labels=labels, loc="best", fontsize="medium")
-    plt.title("Solving time and model size")
+
+    plt.title(title)
     plt.ylabel("Time [s]")
-    plt.ylim(0, None)
+    plt.ylim(0, max_time)
     plt.xticks(list(range(1, len(labels) + 1)), labels, rotation=65)

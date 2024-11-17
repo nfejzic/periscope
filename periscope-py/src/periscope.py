@@ -30,13 +30,16 @@ def main(args: argparse.Namespace):
 
     match args.type:
         case "whisker":
+            if not isfile(args.path):
+                error(f"'{args.path}' is not a file.")
+                exit(1)
+
             periscope_results = periscope_result.results_from_file(args.path)
             whiskers.plot_whiskers(args, periscope_results, figure)
         case "cmp-bars":
-            figure = plt.figure(figsize=(20, 15), constrained_layout=True)
-
             if isfile(args.path):
                 error(f"'{args.path}' is not a directory.")
+                exit(1)
 
             files_with_results = {}
             for file in listdir(args.path):
@@ -47,15 +50,22 @@ def main(args: argparse.Namespace):
 
             cmp_bars.plot_cmp_bars(args, files_with_results, figure)
         case "histogram":
-            figure = plt.figure(figsize=(20, 15), constrained_layout=True)
+            if not isfile(args.path):
+                error(f"'{args.path}' is not a file.")
+                exit(1)
+
             periscope_results = periscope_result.results_from_file(args.path)
-            histogram.plot_histogram(args, periscope_results, figure, of_dump=False)
+            histogram.plot_histogram(periscope_results, figure, of_dump=False)
         case "histogram-after-dump":
+            if not isfile(args.path):
+                error(f"'{args.path}' is not a file.")
+                exit(1)
+
             periscope_results = periscope_result.results_from_file(args.path)
-            histogram.plot_histogram(args, periscope_results, figure, of_dump=True)
+            histogram.plot_histogram(periscope_results, figure, of_dump=True)
         case _:
             print("Unknown type passed.")
-            return
+            exit(1)
 
     if args.output:
         plt.savefig(args.output)

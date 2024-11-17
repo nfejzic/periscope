@@ -1,5 +1,3 @@
-import argparse
-
 from matplotlib import figure, pyplot as plt
 import numpy as np
 
@@ -19,7 +17,6 @@ def cmp_wc(labels: list[str], periscope_results: list[BenchResult]):
 
 
 def plot_histogram(
-    args: argparse.Namespace,
     periscope_results: list[BenchResult],
     figure: figure.Figure,
     of_dump: bool,
@@ -39,8 +36,9 @@ def plot_histogram(
 
     _ = figure.subplots(1, 1)
     cmap = plt.get_cmap("rainbow")
+
     colors = [cmap(val / len(times)) for val in range(len(times))]
-    plt.bar(x=times, height=wcs, label=labels, color=colors, width=5)
+    plt.bar(x=labels, height=wcs, label=labels, color=colors, width=1)
 
     plt.title("Solving time and model size")
     plt.xlabel("Time [s]")
@@ -50,9 +48,9 @@ def plot_histogram(
     else:
         plt.ylabel("Model Size [#chars]")
 
-    plt.xticks(np.arange(np.floor(t_min), np.floor(t_max), step=10))
+    plt.xticks(np.arange(np.floor(t_min), np.floor(t_max), step=1))
     plt.xticks(
-        list(map(np.min, all_times)),
+        labels,
         labels,
         rotation=65,
         minor=True,

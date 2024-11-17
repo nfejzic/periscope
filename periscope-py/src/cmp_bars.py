@@ -23,12 +23,11 @@ def cmp_median_multi():
     def compare(
         i: tuple[str, dict[str, BenchResult]], j: tuple[str, dict[str, BenchResult]]
     ):
-        med_i_avg = sum([b.hyperfine_results()[0].median for b in i[1].values()]) / len(
-            i
-        )
-        med_j_avg = sum([b.hyperfine_results()[0].median for b in j[1].values()]) / len(
-            i
-        )
+        length = len(i)
+        i_sum = sum([b.hyperfine_results()[0].median for b in i[1].values()])
+        j_sum = sum([b.hyperfine_results()[0].median for b in j[1].values()])
+        med_i_avg = i_sum / length
+        med_j_avg = j_sum / length
 
         med_cmp = med_i_avg - med_j_avg
         return int(med_cmp)
@@ -65,7 +64,6 @@ def plot_cmp_bars(
     legend = sorted(
         list(periscope_results.keys()),
         key=functools.cmp_to_key(cmp_legend()),
-        # key=lambda x: int(x.split("-")[0].removesuffix("b")),
     )
 
     bar_w = (1 - 0.4) / len(legend)
@@ -81,10 +79,12 @@ def plot_cmp_bars(
 
     per_file: dict[str, dict[str, BenchResult]] = {}
 
+    max_time = 0
+
     for bench_config in legend:
-        for bench_name in periscope_results[bench_config]:
+        for bench_result in periscope_results[bench_config]:
             b_name = (
-                bench_name.name.removesuffix("-rotorized.btor2")
+                bench_result.name.removesuffix("-rotorized.btor2")
                 .removesuffix("-35")
                 .removesuffix("-10")
                 .removesuffix("-1")
@@ -94,9 +94,10 @@ def plot_cmp_bars(
             if b_name not in per_file:
                 per_file[b_name] = {}
 
-            per_file[b_name][bench_config] = bench_name
+            max_time = np.max([max_time, bench_result.hyperfine_results()[0].median])
+            per_file[b_name][bench_config] = bench_result
 
-    plt.title("Comparison of median times with different model configurations")
+    title = "Comparison of median times with different model configurations"
 
     if args.sort_by == "median":
         per_file = dict(
@@ -105,30 +106,24 @@ def plot_cmp_bars(
 
     if args.scale == "log":
         ax2.set_yscale("log")
-        plt.title(
-            "Comparison of median times with different model configurations (Log scale)",
-        )
+        title += " (Log scale)"
 
+    plt.title(title)
     plt.ylabel("Time [s]")
 
     labels = list(per_file.keys())
-    label_positions = np.arange(len(labels)) - 0.1
+    label_positions = np.arange(len(labels)) - (1 - 0.4) / (len(legend) * 2)
     plt.tick_params(axis="x", length=20)
     plt.xticks(list(label_positions), labels, rotation=55, ha="right")
 
-    # label_positions = list()
-
     for idx, file in enumerate(per_file.values()):
-        for bench_idx, bench_name in enumerate(file.values()):
+        for bench_idx, bench_result in enumerate(file.values()):
             offs = offsets[bench_idx]
-            time = bench_name.hyperfine_results()[0].median
+            time = bench_result.hyperfine_results()[0].median
             color = colors[bench_idx]
             ax = plt.bar(x=idx + offs, height=time, width=bar_w, color=color)
             handles.append(ax)
-            # label_positions.append(idx + offs)
 
-    # plt.xticks(label_positions, labels, rotation=0)
-
-    plt.ylim(0.1, 300)
+    plt.ylim(0.1, max_time)
     legend = list(map(lambda x: x.removesuffix(".json").replace("-", " "), legend))
     plt.legend(handles=handles, labels=legend)
