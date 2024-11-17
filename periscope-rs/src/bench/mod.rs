@@ -299,7 +299,10 @@ fn bench_file(
 
     debug_assert!(dot_periscope.exists());
 
-    let file_name = path.file_name().and_then(OsStr::to_str).unwrap_or_default();
+    let file_name = path
+        .file_name()
+        .and_then(OsStr::to_str)
+        .context("File has corrupted filename.")?;
 
     let hyperfine_out_path = dot_periscope.join(format!("{file_name}_hyperfine_output"));
     let hyperfine_json_path = dot_periscope.join(format!("{file_name}_hyperfine.json"));
@@ -311,14 +314,15 @@ fn bench_file(
         timeout,
     )?;
 
-    let mut props_in_steps = {
-        if let Ok(witness) =
-            btor::parse_btor_witness(File::open(&hyperfine_out_path)?, File::open(path).ok())
-                .inspect_err(|_| {
-                    let witness = std::fs::read_to_string(&hyperfine_out_path).unwrap_or_default();
-                    eprintln!("Failed parsing btor witness format: \n{witness}");
-                })
-        {
+    let parse_witness_res =
+        btor::parse_btor_witness(File::open(&hyperfine_out_path)?, File::open(path).ok())
+            .inspect_err(|_| {
+                let witness = std::fs::read_to_string(&hyperfine_out_path).unwrap_or_default();
+                eprintln!("Failed parsing btor witness format: \n{witness}");
+            });
+
+    let (prop_vec, steps) = {
+        if let Ok(witness) = parse_witness_res {
             witness.props_in_steps()
         } else {
             return Ok(BenchResult::Failed {
@@ -330,10 +334,11 @@ fn bench_file(
         }
     };
 
-    let props = props_in_steps
-        .0
+    let props_formatted = prop_vec.formatted_string();
+    let props = prop_vec
         .inner
-        .drain(..)
+        .iter()
+        .cloned()
         .map(|mut p| {
             Ok(Prop {
                 kind: p.kind,
@@ -347,18 +352,9 @@ fn bench_file(
         })
         .collect::<anyhow::Result<Vec<_>>>()?;
 
-    let steps = props_in_steps.1;
-
-    println!(
-        "{}:\n\t{} characters, {} characters in dump.\n\tFound {} in {} steps.",
-        path.file_name()
-            .and_then(OsStr::to_str)
-            .context("Invalid path to btor2 file.")?,
-        wc_raw,
-        wc_of_dump,
-        props_in_steps.0.formatted_string(),
-        props_in_steps.1
-    );
+    println!("{file_name}:");
+    println!("    {wc_raw} characters, {wc_of_dump} characters in dump.");
+    println!("    Found {props_formatted} in {steps} steps.");
 
     Ok(BenchResult::Success {
         props,

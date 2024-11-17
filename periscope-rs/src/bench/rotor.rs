@@ -7,10 +7,10 @@ use std::{
 /// * `clean`
 /// * `rotor-symbolic`
 ///
-/// Other make targets can be run by providing the corresponding CLI flag. [Commands::Bench] for more
+/// Other make targets can be run by providing the corresponding CLI flag. [`Commands::Bench`] for more
 /// information.
 ///
-/// [Commands::Bench]: crate::Commands::Bench
+/// [`Commands::Bench`]: crate::Commands::Bench
 pub fn run_rotor(
     selfie_dir: &Path,
     rotor_args: &str,

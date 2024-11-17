@@ -45,7 +45,7 @@ impl PropVec {
                     let property = prop.property.as_ref().unwrap();
                     let _ = write!(
                         &mut prop_string,
-                        " named '{}' with nid: {}",
+                        " named '{}' with nid {}",
                         property.name.as_ref().unwrap(),
                         property.node
                     );
