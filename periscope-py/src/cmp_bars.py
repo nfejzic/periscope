@@ -23,12 +23,11 @@ def cmp_median_multi():
     def compare(
         i: tuple[str, dict[str, BenchResult]], j: tuple[str, dict[str, BenchResult]]
     ):
-        med_i_avg = sum([b.hyperfine_results()[0].median for b in i[1].values()]) / len(
-            i
-        )
-        med_j_avg = sum([b.hyperfine_results()[0].median for b in j[1].values()]) / len(
-            i
-        )
+        length = len(i)
+        i_sum = sum([b.hyperfine_results()[0].median for b in i[1].values()])
+        j_sum = sum([b.hyperfine_results()[0].median for b in j[1].values()])
+        med_i_avg = i_sum / length
+        med_j_avg = j_sum / length
 
         med_cmp = med_i_avg - med_j_avg
         return int(med_cmp)
@@ -65,7 +64,6 @@ def plot_cmp_bars(
     legend = sorted(
         list(periscope_results.keys()),
         key=functools.cmp_to_key(cmp_legend()),
-        # key=lambda x: int(x.split("-")[0].removesuffix("b")),
     )
 
     bar_w = (1 - 0.4) / len(legend)
@@ -96,7 +94,7 @@ def plot_cmp_bars(
 
             per_file[b_name][bench_config] = bench_name
 
-    plt.title("Comparison of median times with different model configurations")
+    title = "Comparison of median times with different model configurations"
 
     if args.sort_by == "median":
         per_file = dict(
@@ -105,18 +103,15 @@ def plot_cmp_bars(
 
     if args.scale == "log":
         ax2.set_yscale("log")
-        plt.title(
-            "Comparison of median times with different model configurations (Log scale)",
-        )
+        title += " (Log scale)"
 
+    plt.title(title)
     plt.ylabel("Time [s]")
 
     labels = list(per_file.keys())
-    label_positions = np.arange(len(labels)) - 0.1
+    label_positions = np.arange(len(labels)) - (1 - 0.4) / (len(legend) * 2)
     plt.tick_params(axis="x", length=20)
     plt.xticks(list(label_positions), labels, rotation=55, ha="right")
-
-    # label_positions = list()
 
     for idx, file in enumerate(per_file.values()):
         for bench_idx, bench_name in enumerate(file.values()):
@@ -125,9 +120,6 @@ def plot_cmp_bars(
             color = colors[bench_idx]
             ax = plt.bar(x=idx + offs, height=time, width=bar_w, color=color)
             handles.append(ax)
-            # label_positions.append(idx + offs)
-
-    # plt.xticks(label_positions, labels, rotation=0)
 
     plt.ylim(0.1, 300)
     legend = list(map(lambda x: x.removesuffix(".json").replace("-", " "), legend))
