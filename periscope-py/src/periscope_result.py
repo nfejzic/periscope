@@ -1,8 +1,6 @@
 import json
 from typing import Optional
 import jsonpickle
-from os import listdir
-from os.path import isfile
 
 
 class HyperfineResult:
