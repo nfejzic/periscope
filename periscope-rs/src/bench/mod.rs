@@ -1,5 +1,5 @@
 use std::{
-    collections::HashMap,
+    collections::{HashMap, HashSet},
     ffi::OsStr,
     fs::File,
     path::{Path, PathBuf},
@@ -9,7 +9,7 @@ use std::{
 use anyhow::Context;
 use serde::{Deserialize, Serialize};
 
-use crate::btor;
+use crate::{btor, selfie};
 
 use self::hyperfine::Hyperfine;
 
@@ -29,7 +29,7 @@ pub struct BenchConfig {
 
     /// Filenames to filter BTOR2 models. Models with filenames that don't match any of the files
     /// specified in this filter will be ignored.
-    pub files: Vec<String>,
+    pub files: HashSet<String>,
 
     /// Names of benchmarking runs with their respective (additional) `rotor` arguments.
     pub runs: HashMap<String, String>,
@@ -38,6 +38,19 @@ pub struct BenchConfig {
     /// argument.
     #[serde(skip)]
     pub results_path: Option<PathBuf>,
+}
+
+impl BenchConfig {
+    pub fn filter_files(&self, path_iter: impl Iterator<Item = PathBuf>) -> Vec<PathBuf> {
+        path_iter
+            .filter(|path| {
+                self.files.is_empty()
+                    || self
+                        .files
+                        .contains(path.file_name().and_then(OsStr::to_str).unwrap_or_default())
+            })
+            .collect()
+    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -82,42 +95,52 @@ enum BenchResult {
 /// Collects all `*.btor2` files in the given path and runs the `btormc` on them, benchmarking the
 /// runs.
 pub fn run_benches(
-    path: PathBuf,
+    btor_files_path: PathBuf,
+    dot_periscope: &Path,
     bench_config: BenchConfig,
     make_target: Option<String>,
     jobs: u8,
 ) -> anyhow::Result<()> {
-    let dot_periscope = create_dot_periscope();
-
     if bench_config.runs.is_empty() {
-        bench_file_or_dir(path, &dot_periscope, bench_config)
+        bench_file_or_dir(btor_files_path, dot_periscope, bench_config)
     } else {
-        run_benches_with_rotor(path, bench_config, &dot_periscope, make_target, jobs)
+        run_benches_with_rotor(
+            btor_files_path,
+            bench_config,
+            dot_periscope,
+            make_target,
+            jobs,
+        )
     }
 }
 
 /// Benchmarks a BTOR2 file or all BTOR2 files in the specified directory.
 fn bench_file_or_dir(
-    path: PathBuf,
+    btor_files_path: PathBuf,
     dot_periscope: &Path,
-    bench_config: BenchConfig,
+    mut bench_config: BenchConfig,
 ) -> anyhow::Result<()> {
     let (mut results, results_path) =
-        load_or_create_results(dot_periscope, bench_config.results_path);
+        load_or_create_results(dot_periscope, bench_config.results_path.take());
 
-    let mut paths: Vec<PathBuf> = Vec::new();
-
-    if path.is_file() {
-        paths.push(path);
+    let paths = if btor_files_path.is_file() {
+        vec![btor_files_path]
     } else {
-        paths.extend(
-            std::fs::read_dir(&path)
-                .expect("Could not open directory.")
-                .flat_map(|e| e.ok().map(|e| e.path()).filter(|e| e.is_file())),
-        );
-    }
+        let all_files = std::fs::read_dir(&btor_files_path)
+            .expect("Could not open directory.")
+            .flat_map(|maybe_entry| {
+                maybe_entry
+                    .ok()
+                    .map(|entry| entry.path())
+                    .filter(|path| path.is_file())
+            });
+
+        bench_config.filter_files(all_files)
+    };
 
     for path in paths {
+        assert!(path.extension().is_some_and(|ext| ext == "btor2"));
+
         let bench_result = self::bench_file(
             &path,
             dot_periscope,
@@ -150,27 +173,14 @@ fn run_benches_with_rotor(
     make_target: Option<String>,
     jobs: u8,
 ) -> anyhow::Result<()> {
-    for (name, rotor_args) in config.runs {
+    for (name, rotor_args) in &config.runs {
         println!("\nRunning '{name}':");
 
         // run rotor with the given config
-        rotor::run_rotor(&selfie_dir, &rotor_args, &make_target)?;
+        rotor::run_rotor(&selfie_dir, rotor_args, &make_target)?;
 
         // collect filtered files
-        let files: Vec<PathBuf> = std::fs::read_dir(selfie_dir.join("examples").join("symbolic"))?
-            .filter_map(|entry| {
-                // only files
-                entry
-                    .ok()
-                    .and_then(|e| e.path().is_file().then(|| e.path()))
-            })
-            .filter(|p| {
-                config
-                    .files
-                    .iter()
-                    .any(|el| el == p.file_name().and_then(OsStr::to_str).unwrap_or_default())
-            })
-            .collect();
+        let files: Vec<PathBuf> = selfie::collect_btor_files(&selfie_dir, &config)?;
 
         // ensure results dir exists:
         let results_dir = dot_periscope.join("results");
@@ -196,7 +206,6 @@ fn run_benches_with_rotor(
                 .map(String::from)
                 .expect("Failed to get filename.");
 
-            // results.insert(filename, bench_result);
             Ok((filename, bench_result))
         };
 
@@ -254,18 +263,6 @@ fn run_benches_with_rotor(
     Ok(())
 }
 
-/// Creates the `.periscope` directory for temporary data generated by the `periscope` command.
-fn create_dot_periscope() -> PathBuf {
-    let dot_periscope = PathBuf::from(".periscope/bench");
-
-    if !dot_periscope.exists() || !dot_periscope.is_dir() {
-        std::fs::create_dir_all(&dot_periscope)
-            .unwrap_or_else(|err| panic!("Failed creating '{}': {}", dot_periscope.display(), err))
-    }
-
-    dot_periscope
-}
-
 /// Loads the current results file (in JSON format) if it exists for further appending of new
 /// results. If the file does not exist, it is created.
 fn load_or_create_results(
@@ -319,7 +316,7 @@ fn bench_file(
             btor::parse_btor_witness(File::open(&hyperfine_out_path)?, File::open(path).ok())
                 .inspect_err(|_| {
                     let witness = std::fs::read_to_string(&hyperfine_out_path).unwrap_or_default();
-                    format!("Failed parsing btor witness format: \n{}", witness);
+                    eprintln!("Failed parsing btor witness format: \n{witness}");
                 })
         {
             witness.props_in_steps()
