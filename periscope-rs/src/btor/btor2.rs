@@ -14,6 +14,18 @@ pub struct Property {
     pub name: Option<String>,
 }
 
+/// Extracts the names of properties found in BTOR2.
+///
+/// # Example
+///
+/// `bad` and `justice` properties are supported, such as:
+/// ```btor2
+/// 43011 bad 43010 core-0-illegal-instruction
+/// 43012 justice 43009 core-0-illegal-instruction
+/// ```
+/// Then the Property `bad` will be found and stored in the HashMap. The key for the given Property
+/// is the index of the property in the file. The first property that appears has index 0, second
+/// has index 1 and so on.
 pub(super) fn get_property_names<R: Read>(input: R) -> HashMap<u64, Property> {
     let input = BufReader::new(input);
     input

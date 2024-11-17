@@ -330,13 +330,7 @@ fn bench_file(
         }
     };
 
-    assert!(
-        props_in_steps.len() == 1,
-        "Expected only 1 frame from btor2 witness format, but found {}.",
-        props_in_steps.len()
-    );
-
-    let props = props_in_steps[0]
+    let props = props_in_steps
         .0
         .inner
         .drain(..)
@@ -353,20 +347,18 @@ fn bench_file(
         })
         .collect::<anyhow::Result<Vec<_>>>()?;
 
-    let steps = props_in_steps[0].1;
+    let steps = props_in_steps.1;
 
-    if props_in_steps.len() == 1 {
-        println!(
-            "{}:\n\t{} characters, {} characters in dump.\n\tFound {} in {} steps.",
-            path.file_name()
-                .and_then(OsStr::to_str)
-                .context("Invalid path to btor2 file.")?,
-            wc_raw,
-            wc_of_dump,
-            props_in_steps[0].0.formatted_string(),
-            props_in_steps[0].1
-        );
-    }
+    println!(
+        "{}:\n\t{} characters, {} characters in dump.\n\tFound {} in {} steps.",
+        path.file_name()
+            .and_then(OsStr::to_str)
+            .context("Invalid path to btor2 file.")?,
+        wc_raw,
+        wc_of_dump,
+        props_in_steps.0.formatted_string(),
+        props_in_steps.1
+    );
 
     Ok(BenchResult::Success {
         props,

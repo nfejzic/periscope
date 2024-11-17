@@ -1,13 +1,16 @@
 use std::{fmt::Write, str::FromStr};
 
-use nom::{branch, bytes::complete, character, combinator, multi, sequence};
+use nom::{branch, bytes::complete, combinator, multi, sequence};
 use serde::{Deserialize, Serialize};
 
 use super::{assignment::Assignment, btor2::Property, helpers};
 
+/// Different kinds of BTOR2 properties. At the moment only `bad` and `justice` are supported.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum PropKind {
+    /// The property `bad` - problem is found if this property _is_ satisfied.
     Bad,
+    /// The property `justice` - problem is found if this property _is **not**_ staisfied.
     Justice,
 }
 
@@ -23,6 +26,7 @@ impl FromStr for PropKind {
     }
 }
 
+/// A list of properties.
 #[repr(transparent)]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PropVec {
@@ -30,6 +34,7 @@ pub struct PropVec {
 }
 
 impl PropVec {
+    /// Generate a pretty formatted string representation of properties inside of this `PropVec`.
     pub fn formatted_string(&self) -> String {
         self.inner
             .iter()
@@ -53,10 +58,14 @@ impl PropVec {
     }
 }
 
+/// BTOR2 property representation.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Prop {
+    /// Kind of this property.
     pub kind: PropKind,
+    /// Index of property as it appears in the BTOR2 format.
     pub idx: u64,
+    /// Property definition.
     pub property: Option<Property>,
 }
 
@@ -72,14 +81,14 @@ impl std::fmt::Display for Prop {
 }
 
 impl Prop {
+    /// Parse the witness format representation of the property.
     fn parse(input: &str) -> nom::IResult<&str, Self> {
         combinator::map(
             sequence::pair(
                 branch::alt((complete::tag("b"), complete::tag("j"))),
-                character::complete::digit1,
+                helpers::uint,
             ),
-            |(kind_str, idx_str): (&str, &str)| {
-                let idx = idx_str.parse().expect("digit1 parses only digits.");
+            |(kind_str, idx): (&str, u64)| {
                 let kind = match kind_str {
                     "b" => PropKind::Bad,
                     "j" => PropKind::Justice,
@@ -95,12 +104,15 @@ impl Prop {
     }
 }
 
+/// Representation of the witness format header.
 #[derive(Debug, Clone)]
 pub struct WitnessHeader {
+    /// List of properties that were violated.
     pub props: Vec<Prop>,
 }
 
 impl WitnessHeader {
+    /// Parse the witness format header.
     fn parse(input: &str) -> nom::IResult<&str, Self> {
         combinator::map(
             sequence::terminated(
@@ -112,12 +124,15 @@ impl WitnessHeader {
     }
 }
 
+/// Representation of a model parsed from witness format.
 #[derive(Debug, Default, Clone)]
 pub struct Model {
+    /// List of assignments that are part of this `Model`.
     pub assignments: Vec<Assignment>,
 }
 
 impl Model {
+    /// Parse the model from witness format.
     fn parse(input: &str) -> nom::IResult<&str, Self> {
         let comment = |input| {
             combinator::opt(sequence::terminated(helpers::comment, helpers::newline))(input)
@@ -136,6 +151,7 @@ impl Model {
     }
 }
 
+/// A single transition as it appears in witness format.
 #[derive(Debug, Clone)]
 pub struct Transition {
     pub step: u64,
@@ -157,6 +173,7 @@ impl Transition {
     }
 }
 
+/// A BTOR2 witness format frame, which contains transitions for input and state parts.
 #[derive(Debug, Clone)]
 pub struct WitnessFrame {
     pub state_part: Option<Transition>,
@@ -164,6 +181,7 @@ pub struct WitnessFrame {
 }
 
 impl WitnessFrame {
+    /// Parse witness frame from witness format.
     fn parse(input: &str) -> nom::IResult<&str, Self> {
         let part_with_prefix =
             |prefix| sequence::preceded(complete::tag(prefix), Transition::parse);
@@ -180,6 +198,7 @@ impl WitnessFrame {
         )(input)
     }
 
+    /// Parse multiple frames.
     fn parse_multi(input: &str) -> nom::IResult<&str, Vec<Self>> {
         multi::many1(Self::parse)(input)
     }

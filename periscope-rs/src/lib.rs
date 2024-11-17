@@ -20,12 +20,16 @@ pub struct Config {
 #[derive(Debug, Clone, Subcommand)]
 #[command(long_about)]
 pub enum Commands {
+    /// Parse the witness format of BTOR2 produces by the `btormc` command.
     ParseWitness {
-        /// Path to the witness file.
+        /// Path to the witness file. STDIN will be used if no file is provided.
         file: Option<PathBuf>,
 
-        /// Path to the BTOR2 model file, typically ends with '.btor2' extension.
-        #[arg(short, long)]
+        /// Path to the BTOR2 model file, typically ends with '.btor2' extension. This is not
+        /// required, but adds useful context to the result of parsing. The provided BTOR2 file
+        /// must be matching with the witness format input. That is, the witness format is produced
+        /// after `btormc` processed this BTOR2 file.
+        #[arg(short, long, verbatim_doc_comment)]
         btor2: Option<PathBuf>,
     },
 
@@ -35,10 +39,10 @@ pub enum Commands {
         ///
         /// If 'run-rotor' flag is provided, then the results are stored in
         /// '.periscope/bench/results/{run-name}.json' regardless of this option.
-        #[arg(long)]
+        #[arg(long, verbatim_doc_comment)]
         results_path: Option<PathBuf>,
 
-        /// Whether to run rotor to generate files first.
+        /// Run `rotor` to generate BTOR2 files before benchmarking.
         #[arg(short = 'r', long = "run-rotor")]
         run_rotor: bool,
 
@@ -74,31 +78,40 @@ pub enum Commands {
         bench_config: Option<PathBuf>,
 
         /// Path to the directory that contains selfie and rotor. You can clone selfie from
-        /// [selfie's Github repository](https://www.github.com/cksystemsteaching/selfie).
-        #[arg(short = 's', long = "selfie-dir")]
+        /// [selfie's Github repository](https://www.github.com/cksystemsteaching/selfie). If this
+        /// is not provided, selfie will be cloned into `.periscope` directory.
+        #[arg(short = 's', long = "selfie-dir", verbatim_doc_comment)]
         selfie_dir: Option<PathBuf>,
 
-        #[arg(long = "force-clone-selfie", default_value = "false")]
+        /// Forces clean clone of selfie in case that there are some problems with the already
+        /// cloned selfie. This flag is ignored if `--selfie-dir` is provided.
+        #[arg(
+            long = "force-clone-selfie",
+            default_value = "false",
+            verbatim_doc_comment
+        )]
         force_clone_selfie: bool,
 
         /// Path to folder containing BTOR2 files. All BTOR2 files should have the ".btor2"
         /// extension. Alternatively, path to a single BTOR2 file can be provided for single
         /// benchmark.
-        #[arg(required_unless_present("run_rotor"))]
+        #[arg(required_unless_present("run_rotor"), verbatim_doc_comment)]
         path: Option<PathBuf>,
 
-        /// Target for runing `make` inside of the selfie directory.
-        #[arg(short = 'm', long = "make-target")]
+        /// Target for runing `make` inside of the selfie directory. By default BTOR2 is generated
+        /// for all example `.c` files inside `selfie/examples/symbolic` directory.
+        #[arg(short = 'm', long = "make-target", verbatim_doc_comment)]
         make_target: Option<String>,
 
         /// Number of parallel benchmarks to run. By default benchmarks are run sequentially.
         /// However, if you have multiple CPU cores, you can spin-up multiple benchmarks in
         /// parallel. Maximum value is 255.
-        #[arg(short = 'j', long = "jobs", default_value = "1")]
+        #[arg(short = 'j', long = "jobs", default_value = "1", verbatim_doc_comment)]
         jobs: u8,
     },
 }
 
+/// The starting point of `periscope` which runs the chosen command.
 pub fn run(config: Config) -> anyhow::Result<()> {
     match config.command {
         Commands::ParseWitness { file, btor2 } => {
